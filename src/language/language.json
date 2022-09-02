@@ -1,0 +1,9 @@
+{
+    "print_error": "エラーが発生しました。チームチャットに文字が入力されていない又は[d]が入力されていません",
+    "run_register": "を実行してください(使い方についてはinfo.mdを見てください)",
+    "run_fcmprogram": "次にFCMプログラムを実行してください(https://github.com/AsutoraGG/getToken)",
+    "found_config": "config.jsonが見つかりました!",
+    "notfound_config": "config.jsonは見つかりませんでした!",
+    "connected_rustplus": "RustPlusに接続しました",
+    "config_error": "config.jsonは見つかりましたが中身に問題があります"
+}
