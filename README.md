@@ -1,2 +1,2 @@
 # Rust TeamChat CLI
-pls download (this)[https://github.com/AsutoraGG/getToken]
+pls download [this](https://github.com/AsutoraGG/getToken)
