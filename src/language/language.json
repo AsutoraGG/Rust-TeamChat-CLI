@@ -5,5 +5,10 @@
     "found_config": "config.jsonが見つかりました!",
     "notfound_config": "config.jsonは見つかりませんでした!",
     "connected_rustplus": "RustPlusに接続しました",
-    "config_error": "config.jsonは見つかりましたが中身に問題があります"
+    "config_error": "config.jsonは見つかりましたが中身に問題があります",
+    "default_prefix": "初期設定ではPrefixは ';'　に設定されています",
+    "current_pop": "メンバー数: ",
+    "pop": "人",
+    "current_time": "現在の時刻 : ",
+    "time": "時"
 }
