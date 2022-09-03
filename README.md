@@ -1,2 +1,2 @@
-# Rust-TeamChat-CLI
-TeamChat Command Line
+# Rust TeamChat CLI
+pls download (this)[https://github.com/AsutoraGG/getToken]
