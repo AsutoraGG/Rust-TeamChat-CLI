@@ -1,14 +1,25 @@
 {
     "print_error": "エラーが発生しました。チームチャットに文字が入力されていない又は[d]が入力されていません",
+    "error": "不明なエラーがはっせいしました",
     "run_register": "を実行してください(使い方についてはinfo.mdを見てください)",
     "run_fcmprogram": "次にFCMプログラムを実行してください(https://github.com/AsutoraGG/getToken)",
     "found_config": "config.jsonが見つかりました!",
+    "get_token": "https://github.com/AsutoraGG/getToken ここからトークンを取得できます",
     "notfound_config": "config.jsonは見つかりませんでした!",
     "connected_rustplus": "RustPlusに接続しました",
+    "no_teampop": "現在チームに誰もいない、またはチームが作成されていません",
     "config_error": "config.jsonは見つかりましたが中身に問題があります",
     "default_prefix": "初期設定ではPrefixは ';'　に設定されています",
     "current_pop": "メンバー数: ",
     "pop": "人",
-    "current_time": "現在の時刻 : ",
-    "time": "時"
+    "current_time": "げんざいのじこく : ",
+    "time": "秒",
+    "no_entityid": "エンティティIDを入力してください",
+    "invalid_entityid": "エンティティIDが無効です",
+    "saved": "保存しました",
+    "no_name": "とうろくめいをにゅうりょくしてください",
+    "turn_on": " is On",
+    "turn_off": " is Off",
+    "on_now": "　はすでにONです",
+    "off_now": "　はすでにOFFです"
 }
