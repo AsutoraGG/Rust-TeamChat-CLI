@@ -5,5 +5,5 @@
     "add": "add",
     "on": "on",
     "off": "off",
-    "getDevice": "getdevice"
+    "list": "commandList"
 }

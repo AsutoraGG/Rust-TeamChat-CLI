@@ -63,14 +63,13 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
         Print('INFO', language.connected_rustplus, false);
         Print('INFO', language.default_prefix, false);
         rustplus.sendTeamMessage('[BOT] : Connected');
-        /* 
         rustplus.getTeamInfo(team => { //チームが作成されていないとバグるのでチームが
             let member = team.response.teamInfo.members;
-            if(member.length === 1) {
+            if(member.length === 0) {
                 Print('INFO', language.no_teampop, false);
-                process.exit();
+                process.exit(0);
             }
-        }) */
+        })
         setTimeout(() => console.clear(), 3000)
         if(config.Ingame.command === true) {
             setTitle('Rust-TeamChat-CLI | Made by @AsutoraGG | In Game Command = true')
@@ -80,24 +79,27 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
     });
 
     rustplus.on('error', (e) => { /* RustPlus.jsでエラーが起こったら */
-        Print('ERROR', e, false);
+        if(e === 'Error: Parse Error: Expected HTTP/') { 
+            Print('ERROR', language.error_parse, false)
+        } else {
+            Print('ERROR', language.error, false);
+            console.log(e);
+        }
     });
 
-    rustplus.on('message', msg => {
+    rustplus.on('message', msg => { /* チームチャットでメッセージを受信したときの処理(msg = チームチャットの詳細) */
         const command = require('./src/command.json')
         const device = require('./device.json');
         if (msg.broadcast && msg.broadcast.teamMessage) {
-            let message = msg.broadcast.teamMessage.message.message.toString();
-            let name = msg.broadcast.teamMessage.message.name;
-            let bot = '[BOT] : '
+            let message = msg.broadcast.teamMessage.message.message.toString(); // メッセージの内容
+            let name = msg.broadcast.teamMessage.message.name; //　メッセージを送信した人の名前
+            let bot = '[BOT] : ';
 
             console.log("[" + getTime() + "][CHAT] : " + "[" + name + "] : " + message); // This is team Chat log
 
-            if (config.Ingame.command === true) { /* InGame Commandが有効になっていたら */
+            if (config.Ingame.command === true) { // InGame Commandが有効になっていたら 
+                const auth = require('./auth.json');
                 const prefix = config.Ingame.prefix;
-
-                //let t = command.slice(prefix + 'add').trim().split(/ +/); command is ${prefix}pop only
-                //console.log(t[1])
 
                 if(message === prefix + command.pop) { //Pop Command
                     rustplus.getInfo(info => {
@@ -131,13 +133,13 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                         let i = info.response;
 
                         if(i.error) {
-                            rustplus.sendTeamMessage(language.invalid_entityid) //エンティティIDを正しく入力してください
+                            rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
                         }
                         else if(i.entityInfo) {
                             write('./device.json', entityID[2], entityID[1])
-                            rustplus.sendTeamMessage(language.saved)
+                            rustplus.sendTeamMessage(bot + language.saved)
                         } else {
-                            rustplus.sendTeamMessage(language.error)
+                            rustplus.sendTeamMessage(bot + language.error)
                         }
                     })
                 }
@@ -145,8 +147,8 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 if(message.includes(prefix + command.on)) {
                     let name = message.slice(prefix + command.add).trim().split(/ +/);
 
-                    if(name[1].length <= 0 && name[1] === null) return rustplus.sendTeamMessage(language.no_name)
-
+                    if(name[1].length <= 0 && name[1] === null) return rustplus.sendTeamMessage(language.no_name);
+                    
                     if(device[name[1]]) {
                         rustplus.getEntityInfo(device[name[1]], OnDevice => {
                             let response = OnDevice.response.entityInfo;
@@ -154,50 +156,52 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                             if(response.type === 1) {
                                 if(response.payload.value === false) {
                                     rustplus.turnSmartSwitchOn(device[name[1]], () => {
-                                        rustplus.sendTeamMessage(name[1] + language.turn_on)
+                                        rustplus.sendTeamMessage(bot + name[1] + language.turn_on)
                                     })
                                 } else {
-                                    rustplus.sendTeamMessage(language.on_now);
+                                    rustplus.sendTeamMessage(bot + name[1] + language.on_now);
                                 }
                             } else {
                                 console.log(language.error);
                             }
                         })
+                    } else {
+                        rustplus.sendTeamMessage(bot + language.not_device);
                     }
                 }
 
-                if(message.includes(prefix + command.off)) {
+                if(message.includes(prefix + command.off)) { //デバイスをOnにする
                     let name = message.slice(prefix + command.add).trim().split(/ +/);
 
-                    if(name[1].length <= 0 && name[1] === null) return rustplus.sendTeamMessage(language.no_name)
+                    if(name[1].length <= 0 && name[1] === null) return rustplus.sendTeamMessage(language.no_name); //　もし名前が1以下又は0だったら拒否
 
                     if(device[name[1]]) {
                         rustplus.getEntityInfo(device[name[1]], OnDevice => {
                             let response = OnDevice.response.entityInfo;
 
-                            if(response.type === 1) {
+                            if(response.type === 1) {　
                                 if(response.payload.value === true) {
                                     rustplus.turnSmartSwitchOff(device[name[1]], () => {
-                                        rustplus.sendTeamMessage(name[1] + language.turn_off)
+                                        rustplus.sendTeamMessage(bot + name[1] + language.turn_off)
                                     })
                                 } else {
-                                    rustplus.sendTeamMessage(language.off_now);
+                                    rustplus.sendTeamMessage(bot + name[1] + language.off_now);
                                 }
                             } else {
                                 console.log(language.error);
                             }
                         }) 
                     } else {
-                        rustplus.sendTeamMessage(language.no_name);
+                        rustplus.sendTeamMessage(bot + language.not_device);
                     }
                 }
             }
         }
     });
 
-    const input = readLine.createInterface({ input: process.stdin });
+    const input = readLine.createInterface({ input: process.stdin }); //　入力を受け取る↓
     input.on('line', (msg) => {
-        if(msg === 'getToken') {
+        if(msg === 'getToken') { //あまり需要がない...
             readLine.moveCursor(process.stdout, 0, -1);
             Print('HELP', language.help_token)
         } else if (msg === 'clear') {
@@ -205,15 +209,15 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
             console.clear();
         }
         else {
-            readLine.moveCursor(process.stdout, 0, -1);
-            rustplus.sendTeamMessage(msg);
+            readLine.moveCursor(process.stdout, 0, -1); //入力を受け取った後上の一行を削除する
+            rustplus.sendTeamMessage(msg); //　チームチャットにメッセージを送信
         }
     });
 
-    rustplus.connect();
+    rustplus.connect(); // サーバーに接続
 }
-else {
-    console.clear();
+else { // config.jsonがないとrustplusに接続させないようにさせプログラムを終了する
+    console.clear(); /* \x1b[36m....ってやつは色を指定するためのコード */
     Print('INFO', language.notfound_config, false);
     console.log("\x1b[36m[" + getTime() + "][INFO]  \x1b[39m: \x1b[32mnpx @liamcottle/rustplus.js fcm-register\x1b[39m" + language.run_register);
     console.log("\x1b[36m[" + getTime() + "][INFO] \x1b[39m : " + language.run_fcmprogram);

@@ -5,6 +5,7 @@
     "run_fcmprogram": "次にFCMプログラムを実行してください(https://github.com/AsutoraGG/getToken)",
     "found_config": "config.jsonが見つかりました!",
     "get_token": "https://github.com/AsutoraGG/getToken ここからトークンを取得できます",
+    "error_parse": "rustplus.jsは複数の(二つ以上)サーバーに接続又は同時に二つのプログラムで接続することは不可能です",
     "notfound_config": "config.jsonは見つかりませんでした!",
     "connected_rustplus": "RustPlusに接続しました",
     "no_teampop": "現在チームに誰もいない、またはチームが作成されていません",
@@ -20,6 +21,9 @@
     "no_name": "とうろくめいをにゅうりょくしてください",
     "turn_on": " is On",
     "turn_off": " is Off",
-    "on_now": "　はすでにONです",
-    "off_now": "　はすでにOFFです"
+    "on_now": "はすでにONです",
+    "off_now": "はすでにOFFです",
+    "not_auth": "あなたはこのコマンドのしようがきょかされていません",
+    "command_help1": "げんざいのコマンドの数 : ",
+    "not_device": "がとうろくさていません。プログラムを再度きどうしなおすかデバイスをとうろくしてください"
 }
