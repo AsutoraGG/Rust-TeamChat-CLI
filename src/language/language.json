@@ -18,12 +18,13 @@
     "no_entityid": "エンティティIDを入力してください",
     "invalid_entityid": "エンティティIDが無効です",
     "saved": "保存しました",
+    "not_saved": "はとうろくされていません",
+    "banchar": "きごうはつかわないでください",
     "no_name": "とうろくめいをにゅうりょくしてください",
     "turn_on": " is On",
     "turn_off": " is Off",
     "on_now": "はすでにONです",
     "off_now": "はすでにOFFです",
-    "not_auth": "あなたはこのコマンドのしようがきょかされていません",
     "command_help1": "げんざいのコマンドの数 : ",
     "not_device": "がとうろくさていません。プログラムを再度きどうしなおすかデバイスをとうろくしてください"
 }

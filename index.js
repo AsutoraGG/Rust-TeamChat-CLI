@@ -4,6 +4,8 @@ const { existsSync, readFileSync, writeFileSync } = require('fs');
 
 const language = require('./src/language/language.json');
 
+const delay = 3000;
+
 function getTime() {
     var date = new Date();
 
@@ -90,6 +92,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
     rustplus.on('message', msg => { /* チームチャットでメッセージを受信したときの処理(msg = チームチャットの詳細) */
         const command = require('./src/command.json')
         const device = require('./device.json');
+
         if (msg.broadcast && msg.broadcast.teamMessage) {
             let message = msg.broadcast.teamMessage.message.message.toString(); // メッセージの内容
             let name = msg.broadcast.teamMessage.message.name; //　メッセージを送信した人の名前
@@ -98,7 +101,6 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
             console.log("[" + getTime() + "][CHAT] : " + "[" + name + "] : " + message); // This is team Chat log
 
             if (config.Ingame.command === true) { // InGame Commandが有効になっていたら 
-                const auth = require('./auth.json');
                 const prefix = config.Ingame.prefix;
 
                 if(message === prefix + command.pop) { //Pop Command
@@ -123,12 +125,17 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                     })
                 }
 
+                if(message === prefix + command.rusttime) { // get Rust World Time
+                    
+                }
+
                 if(message.includes(prefix + command.add)) { // adddevice command
                     let entityID = message.slice(prefix + command.add).trim().split(/ +/);
+                    let banChar = '-^\@[;:],./\=~|`{+*}_?><';
                     // ([0] = add , [1] = entityid , [2] = saveName)
 
-                    if(entityID[1].length <= 0 && entityID[1] === null) return rustplus.sendTeamMessage(prefix + command.add + ' id ' + 'saveName');
-                    if(entityID[2].length <= 0 && entityID[2] === null) return rustplus.sendTeamMessage(prefix + command.add + ' id ' + 'saveName');
+                    if(!entityID[1]) return rustplus.sendTeamMessage(prefix + command.add + ' id ' + 'saveName');
+                    if(entityID[1].includes(banChar)) return rustplus.sendTeamMessage(language.banchar);
                     rustplus.getEntityInfo(entityID[1], (info) => {
                         let i = info.response;
 
@@ -144,55 +151,64 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                     })
                 }
 
-                if(message.includes(prefix + command.on)) {
-                    let name = message.slice(prefix + command.add).trim().split(/ +/);
-
-                    if(name[1].length <= 0 && name[1] === null) return rustplus.sendTeamMessage(language.no_name);
+                if(message.includes(prefix + command.on)) { // deviceをonにする
+                    let devicename = message.slice(prefix + command.add).trim().split(/ +/);
                     
-                    if(device[name[1]]) {
-                        rustplus.getEntityInfo(device[name[1]], OnDevice => {
+                    if(devicename[1].length <= 0 && devicename[1] === null) return rustplus.sendTeamMessage(language.no_name);
+                    
+                    if(device[devicename[1]]) {
+                        rustplus.getEntityInfo(device[devicename[1]], OnDevice => {
                             let response = OnDevice.response.entityInfo;
 
-                            if(response.type === 1) {
-                                if(response.payload.value === false) {
-                                    rustplus.turnSmartSwitchOn(device[name[1]], () => {
-                                        rustplus.sendTeamMessage(bot + name[1] + language.turn_on)
-                                    })
-                                } else {
-                                    rustplus.sendTeamMessage(bot + name[1] + language.on_now);
-                                }
+                            if(!response) {
+                                rustplus.sendTeamMessage(devicename[1] + language.not_saved);
                             } else {
-                                console.log(language.error);
+                                if(response.type === 1) {
+                                    if(response.payload.value === false) {
+                                        rustplus.turnSmartSwitchOn(device[devicename[1]], () => {
+                                            rustplus.sendTeamMessage(bot + devicename[1] + language.turn_on)
+                                        })
+                                    } else {
+                                        rustplus.sendTeamMessage(bot + devicename[1] + language.on_now);
+                                    }
+                                } else {
+                                    console.log(language.error);
+                                }
                             }
                         })
                     } else {
-                        rustplus.sendTeamMessage(bot + language.not_device);
+                        rustplus.sendTeamMessage(bot + devicename[1] + language.not_device);
                     }
                 }
 
-                if(message.includes(prefix + command.off)) { //デバイスをOnにする
-                    let name = message.slice(prefix + command.add).trim().split(/ +/);
+                if(message.includes(prefix + command.off)) { //デバイスをOffにする
 
-                    if(name[1].length <= 0 && name[1] === null) return rustplus.sendTeamMessage(language.no_name); //　もし名前が1以下又は0だったら拒否
+                    let devicename = message.slice(prefix + command.add).trim().split(/ +/);
 
-                    if(device[name[1]]) {
-                        rustplus.getEntityInfo(device[name[1]], OnDevice => {
+                    if(devicename[1].length <= 0 && devicename[1] === null) return rustplus.sendTeamMessage(language.no_name); //　もし名前が1以下又は0だったら拒否
+
+                    if(device[devicename[1]]) {
+                        rustplus.getEntityInfo(device[devicename[1]], OnDevice => {
                             let response = OnDevice.response.entityInfo;
 
-                            if(response.type === 1) {　
-                                if(response.payload.value === true) {
-                                    rustplus.turnSmartSwitchOff(device[name[1]], () => {
-                                        rustplus.sendTeamMessage(bot + name[1] + language.turn_off)
-                                    })
-                                } else {
-                                    rustplus.sendTeamMessage(bot + name[1] + language.off_now);
-                                }
+                            if(!response) {
+                                rustplus.sendTeamMessage(devicename[1] + language.not_saved);
                             } else {
-                                console.log(language.error);
+                                if(response.type === 1) {
+                                    if(response.payload.value === true) {
+                                        rustplus.turnSmartSwitchOff(device[devicename[1]], () => {
+                                            rustplus.sendTeamMessage(bot + devicename[1] + language.turn_off)
+                                        })
+                                    } else {
+                                        rustplus.sendTeamMessage(bot + devicename[1] + language.off_now);
+                                    }
+                                } else {
+                                    console.log(language.error);
+                                }
                             }
-                        }) 
+                        })
                     } else {
-                        rustplus.sendTeamMessage(bot + language.not_device);
+                        rustplus.sendTeamMessage(bot + devicename[1] + language.not_device);
                     }
                 }
             }

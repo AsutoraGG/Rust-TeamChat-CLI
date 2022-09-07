@@ -5,5 +5,5 @@
     "add": "add",
     "on": "on",
     "off": "off",
-    "list": "commandList"
+    "rusttime": "time"
 }
