@@ -5,5 +5,7 @@
     "add": "add",
     "on": "on",
     "off": "off",
-    "rusttime": "time"
+    "rusttime": "time",
+    "addAuth": "addAuth",
+    "removeAuth": "removeAuth"
 }
