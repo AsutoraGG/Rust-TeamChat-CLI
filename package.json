@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@liamcottle/rustplus.js": "^2.3.0",
-    "push-receiver": "^2.1.1"
+    "@liamcottle/rustplus.js": "^2.3.0"
   }
 }

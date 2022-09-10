@@ -7,7 +7,7 @@ const language = require('./src/language/language.json');
 const delay = 3000;
 
 /**
- * @param {boolean} q 
+ * @param {boolean} q
  * @returns falseは分まで trueは秒まで
  */
 function getTime(q) {
@@ -75,13 +75,15 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
         Print('INFO', language.connected_rustplus, false);
         Print('INFO', language.default_prefix, false);
         rustplus.sendTeamMessage('[BOT] : Connected');
+        /*
         rustplus.getTeamInfo(team => { //チームが作成されていないとバグるのでチームが
             let member = team.response.teamInfo.members;
             if(member.length === 1) {
                 Print('ERROR', language.no_teampop, false);
+                rustplus.disconnect();
                 process.exit(0);
             }
-        })
+        }) */
         setTimeout(() => console.clear(), 3000)
         if(config.Ingame.command === true) {
             setTitle('Rust-TeamChat-CLI | Made by @AsutoraGG | In Game Command = true')
@@ -91,7 +93,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
     });
 
     rustplus.on('error', (e) => { /* RustPlus.jsでエラーが起こったら */
-        if(e === 'Error: Parse Error: Expected HTTP/') { 
+        if(e === 'Error: Parse Error: Expected HTTP/') {
             Print('ERROR', language.error_parse, false);
             process.exit(0);
         } else if(e === `Error: connect ETIMEDOUT ${config.ID}:${config.PORT}`) {
@@ -108,22 +110,16 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
     rustplus.on('message', msg => { /* チームチャットでメッセージを受信したときの処理(msg = チームチャットの詳細) */
         const command = require('./src/command.json')
         const device = require('./device.json');
-        const auth = require('./auth.json');
-        let owner = auth.Owner;
+
         if (msg.broadcast && msg.broadcast.teamMessage) {
             let message = msg.broadcast.teamMessage.message.message.toString(); // メッセージの内容
             let name = msg.broadcast.teamMessage.message.name; //　メッセージを送信した人の名前
             let steamID = msg.broadcast.teamMessage.message.steamId.toString(); //　スチームID
             let bot = '[BOT] : ';
 
-            function CheckOwner() {
-                if(!name === owner) {
-                    rustplus.sendTeamMessage(language.not_auth);
-                } else return false;
-            }
             console.log("[" + getTime(true) + "][CHAT] : " + "[" + name + "] : " + message); // This is team Chat log
 
-            if (config.Ingame.command === true) { // InGame Commandが有効になっていたら 
+            if (config.Ingame.command === true) { // InGame Commandが有効になっていたら
                 const prefix = config.Ingame.prefix;
 
                 if(message === prefix + command.pop) { //Pop Command
@@ -138,12 +134,10 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 }
 
                 if(message === prefix + command.now) { // get Current Time(Real World) command
-                    CheckOwner();
                     rustplus.sendTeamMessage(bot + language.current_time + getTime(false));
                 }
 
                 if(message === prefix + command.rusttime) { // get Rust World Time
-                    CheckOwner();
                     function ConveterTime(decimalTimeString) {
                         var decimalTime = parseFloat(decimalTimeString);
                         decimalTime = decimalTime * 60 * 60;
@@ -159,7 +153,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                         rustplus.sendTeamMessage(bot + ConveterTime(time));
                     })
                 }
- 
+
                 if(message === prefix + command.teampop) {// get Team Pop command
                     rustplus.getTeamInfo(team => {
                         let member = team.response.teamInfo.members;
@@ -167,42 +161,27 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                     })
                 }
 
-                if(message.includes(prefix + command.addAuth)) { //権限を追加
-                    CheckOwner();
-                    let playerName = message.slice(prefix + command.addAuth).trim().split(/ +/);
-                    rustplus.getTeamInfo(info => {
-                        let team = info.response.teamInfo.members;
-
-                        for(let i of team) {
-                            if(i.name === playerName[1]) {
-                                write('./auth.json', playerName[1], steamID);
-                                rustplus.sendTeamMessage(playerName[1] + " " + language.saved);
-                            } else {
-                                rustplus.sendTeamMessage(playerName[1] + language.no_member);
-                                Print('ERROR', language.error);
-                            }
-                        }
-                    });
-                }
-
                 if(message.includes(prefix + command.add)) { // adddevice command
-                    CheckOwner();
                     let entityID = message.slice(prefix + command.add).trim().split(/ +/);
-                    let banChar = '-^\@[;:],./\=~|`{+*}_?><';
-                    // ([0] = add , [1] = entityid , [2] = saveName)
 
-                    if(!entityID[1]) return rustplus.sendTeamMessage(prefix + command.add + ' id ' + 'saveName');
-                    if(entityID[1].includes(banChar)) return rustplus.sendTeamMessage(language.banchar);
+                    if(!entityID[1]) { //エンティティIDが入力されていなかったら
+                      rustplus.sendTeamMessage(prefix + command.add + ' entityID ' + 'saveName');
+                    }
+                    if (!entityID[2]) { //登録名が入力されていなかったら
+                      rustplus.sendTeamMessage(prefix + command.add + ' entityID ' + 'saveName');
+                    }
+
                     rustplus.getEntityInfo(entityID[1], (info) => {
                         let i = info.response;
 
-                        if(i.error) {
+                        if(i.error) { //responseにエラーがあったら
                             rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
                         }
-                        else if(i.entityInfo) {
+
+                        else if(i.entityInfo) { //entityInfoが出てきたら
                             write('./device.json', entityID[2], entityID[1])
                             rustplus.sendTeamMessage(bot + language.saved)
-                        } else {
+                        } else { //その他はエラー
                             rustplus.sendTeamMessage(bot + language.error)
                         }
                     })
@@ -210,9 +189,12 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
 
                 if(message.includes(prefix + command.on)) { // deviceをonにする
                     let devicename = message.slice(prefix + command.add).trim().split(/ +/);
-                    
-                    if(devicename[1].length <= 0 && devicename[1] === null) return rustplus.sendTeamMessage(language.no_name);
-                    
+
+                    if(!devicename[1]) {
+                      rustplus.sendTeamMessage(language.no_name);
+                      return false;
+                    }
+
                     if(device[devicename[1]]) {
                         rustplus.getEntityInfo(device[devicename[1]], OnDevice => {
                             let response = OnDevice.response.entityInfo;
@@ -239,10 +221,12 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 }
 
                 if(message.includes(prefix + command.off)) { //デバイスをOffにする
-
                     let devicename = message.slice(prefix + command.add).trim().split(/ +/);
 
-                    if(devicename[1].length <= 0 && devicename[1] === null) return rustplus.sendTeamMessage(language.no_name); //　もし名前が1以下又は0だったら拒否
+                    if(!devicename[1]) {
+                      rustplus.sendTeamMessage(language.no_name);
+                      return false;
+                    }
 
                     if(device[devicename[1]]) {
                         rustplus.getEntityInfo(device[devicename[1]], OnDevice => {
