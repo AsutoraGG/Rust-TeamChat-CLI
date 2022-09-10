@@ -2,8 +2,10 @@
     "pop": "pop",
     "now": "now",
     "teampop": "teampop",
-    "add": "add",
+    "add": "adddevice",
     "on": "on",
     "off": "off",
-    "rusttime": "time"
+    "rusttime": "time",
+    "addmemo": "addmemo",
+    "openmemo": "openmemo"
 }

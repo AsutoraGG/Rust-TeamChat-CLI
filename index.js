@@ -1,10 +1,9 @@
 const RustPlus = require('@liamcottle/rustplus.js');
 const readLine = require('readline');
 const { existsSync, readFileSync, writeFileSync } = require('fs');
+const { writeFile } = require('fs/promises');
 
 const language = require('./src/language/language.json');
-
-const delay = 3000;
 
 /**
  * @param {boolean} q
@@ -161,14 +160,55 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                     })
                 }
 
+                if(message.includes(prefix + command.addmemo)) { //メモに文字列を登録
+                    /**
+                    * たとえばだけどパスワードとか、拠点の座標とか、レイドターゲットとかメモしたいことを
+                    */
+                    const memo = message.slice(prefix + command.addmemo).trim().split(/ +/);
+
+                    if(memo[1] === 'help') {
+                        rustplus.sendTeamMessage(command.addmemo + ' [SaveName] ' + '[detail]')
+                    } else if (!memo[1]){
+                        rustplus.sendTeamMessage(language.error);
+                    } else if(!memo[2]) {
+                        rustplus.sendTeamMessage(language.error);
+                    }
+                    else {
+                        write('./memo.json', memo[1], memo[2]);
+                        rustplus.sendTeamMessage(language.saved);
+                    } 
+                }
+
+                if(message.includes(prefix + command.openmemo)) { //メモの内容を
+                    if(!existsSync('./memo.json')) {
+                        rustplus.sendTeamMessage(language.error);
+                    }
+                    const memo = message.slice(prefix + command.openmemo).trim().split(/ +/);
+                    const memoJson = require('./memo.json')
+
+                    if(memo[1]) {
+                        if(memo[1] === 'help') {
+                            rustplus.sendTeamMessage(command.openmemo + ' [SaveName]');
+                        } else {
+                            if(memoJson[memo[1]]) {
+                                rustplus.sendTeamMessage(memo[1] + " : " + memoJson[memo[1]]);
+                            } else {
+                                rustplus.sendTeamMessage(memo[1] + language.not_saved);
+                            }
+                        }
+                    } else {
+                        rustplus.sendTeamMessage(language.no_name);
+                    }
+                }
+
                 if(message.includes(prefix + command.add)) { // adddevice command
                     let entityID = message.slice(prefix + command.add).trim().split(/ +/);
 
                     if(!entityID[1]) { //エンティティIDが入力されていなかったら
-                      rustplus.sendTeamMessage(prefix + command.add + ' entityID ' + 'saveName');
+                      rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
                     }
                     if (!entityID[2]) { //登録名が入力されていなかったら
-                      rustplus.sendTeamMessage(prefix + command.add + ' entityID ' + 'saveName');
+                      rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
                     }
 
                     rustplus.getEntityInfo(entityID[1], (info) => {
