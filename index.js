@@ -1,7 +1,6 @@
 const RustPlus = require('@liamcottle/rustplus.js');
 const readLine = require('readline');
 const { existsSync, readFileSync, writeFileSync } = require('fs');
-const { writeFile } = require('fs/promises');
 
 const language = require('./src/language/language.json');
 
@@ -37,8 +36,6 @@ function Print(a, b, c, d, e) {
             console.log("\x1b[1m\x1b[31m[" + getTime(true) + "][" + a + "] \x1b[39m: " + b);
         } else if(a === 'HELP') {
             console.log("\x1b[1m\x1b[35m[" + getTime(true) + "][" + a + "] \x1b[39m: " + b);
-        } else {
-            console.log('ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR');
         }
     }
 }
@@ -60,6 +57,13 @@ function write(path, property, value) {
 
 if (existsSync('./config.json')) { /* ファイルがあるか */
     const config = require('./config.json');
+    const auth = require('./auth.json');
+
+    if(!auth.Owner) {
+        Print('ERROR', language.no_Owner, false);
+        Print('ERROR', language.process_exit, false);
+        process.exit(0);
+    }
 
     console.clear();
     if(!config) { /* もしファイルがあっても内容が書かれてなかったら */
@@ -74,15 +78,16 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
         Print('INFO', language.connected_rustplus, false);
         Print('INFO', language.default_prefix, false);
         rustplus.sendTeamMessage('[BOT] : Connected');
-        /*
-        rustplus.getTeamInfo(team => { //チームが作成されていないとバグるのでチームが
+
+        rustplus.getTeamInfo(team => { //チーム人数が1の場合ここを無効にしてください(囲めば無効にできます)
             let member = team.response.teamInfo.members;
             if(member.length === 1) {
                 Print('ERROR', language.no_teampop, false);
                 rustplus.disconnect();
                 process.exit(0);
-            }
-        }) */
+            } 
+        }) 
+
         setTimeout(() => console.clear(), 3000)
         if(config.Ingame.command === true) {
             setTitle('Rust-TeamChat-CLI | Made by @AsutoraGG | In Game Command = true')
@@ -161,22 +166,24 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 }
 
                 if(message.includes(prefix + command.addmemo)) { //メモに文字列を登録
-                    /**
-                    * たとえばだけどパスワードとか、拠点の座標とか、レイドターゲットとかメモしたいことを
-                    */
-                    const memo = message.slice(prefix + command.addmemo).trim().split(/ +/);
+                    //たとえばだけどパスワードとか、拠点の座標とか、レイドターゲットとかメモしたいことを
+                    if(name === auth.Owner) {
+                        const memo = message.slice(prefix + command.addmemo).trim().split(/ +/);
 
-                    if(memo[1] === 'help') {
-                        rustplus.sendTeamMessage(command.addmemo + ' [SaveName] ' + '[detail]')
-                    } else if (!memo[1]){
-                        rustplus.sendTeamMessage(language.error);
-                    } else if(!memo[2]) {
-                        rustplus.sendTeamMessage(language.error);
+                        if(memo[1] === 'help') {
+                            rustplus.sendTeamMessage(command.addmemo + ' [SaveName] ' + '[detail]')
+                        } else if (!memo[1]){
+                            rustplus.sendTeamMessage(language.error);
+                        } else if(!memo[2]) {
+                            rustplus.sendTeamMessage(language.error);
+                        }
+                        else {
+                            write('./memo.json', memo[1], memo[2]);
+                            rustplus.sendTeamMessage(language.saved);
+                        } 
+                    } else {
+                        rustplus.sendTeamMessage(language.not_auth);
                     }
-                    else {
-                        write('./memo.json', memo[1], memo[2]);
-                        rustplus.sendTeamMessage(language.saved);
-                    } 
                 }
 
                 if(message.includes(prefix + command.openmemo)) { //メモの内容を
@@ -202,29 +209,34 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 }
 
                 if(message.includes(prefix + command.add)) { // adddevice command
-                    let entityID = message.slice(prefix + command.add).trim().split(/ +/);
 
-                    if(!entityID[1]) { //エンティティIDが入力されていなかったら
-                      rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
-                    }
-                    if (!entityID[2]) { //登録名が入力されていなかったら
-                      rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
-                    }
+                    if(name === owner.Owner) {
+                        let entityID = message.slice(prefix + command.add).trim().split(/ +/);
 
-                    rustplus.getEntityInfo(entityID[1], (info) => {
-                        let i = info.response;
-
-                        if(i.error) { //responseにエラーがあったら
-                            rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
+                        if(!entityID[1]) { //エンティティIDが入力されていなかったら
+                          rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
                         }
-
-                        else if(i.entityInfo) { //entityInfoが出てきたら
-                            write('./device.json', entityID[2], entityID[1])
-                            rustplus.sendTeamMessage(bot + language.saved)
-                        } else { //その他はエラー
-                            rustplus.sendTeamMessage(bot + language.error)
+                        if (!entityID[2]) { //登録名が入力されていなかったら
+                          rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
                         }
-                    })
+    
+                        rustplus.getEntityInfo(entityID[1], (info) => {
+                            let i = info.response;
+    
+                            if(i.error) { //responseにエラーがあったら
+                                rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
+                            }
+    
+                            else if(i.entityInfo) { //entityInfoが出てきたら
+                                write('./device.json', entityID[2], entityID[1])
+                                rustplus.sendTeamMessage(bot + language.saved)
+                            } else { //その他はエラー
+                                rustplus.sendTeamMessage(bot + language.error)
+                            }
+                        })
+                    } else {
+                        rustplus.sendTeamMessage(language.not_auth);
+                    }
                 }
 
                 if(message.includes(prefix + command.on)) { // deviceをonにする
