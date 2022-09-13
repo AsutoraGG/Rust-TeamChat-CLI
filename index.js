@@ -85,8 +85,8 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 Print('ERROR', language.no_teampop, false);
                 rustplus.disconnect();
                 process.exit(0);
-            } 
-        }) 
+            }
+        })
 
         setTimeout(() => console.clear(), 3000)
         if(config.Ingame.command === true) {
@@ -171,18 +171,18 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                         const memo = message.slice(prefix + command.addmemo).trim().split(/ +/);
 
                         if(memo[1] === 'help') {
-                            rustplus.sendTeamMessage(command.addmemo + ' [SaveName] ' + '[detail]')
+                            rustplus.sendTeamMessage(bot + command.addmemo + ' [SaveName] ' + '[detail]')
                         } else if (!memo[1]){
-                            rustplus.sendTeamMessage(language.error);
+                            rustplus.sendTeamMessage(bot + language.error);
                         } else if(!memo[2]) {
-                            rustplus.sendTeamMessage(language.error);
+                            rustplus.sendTeamMessage(bot + language.error);
                         }
                         else {
                             write('./memo.json', memo[1], memo[2]);
-                            rustplus.sendTeamMessage(language.saved);
-                        } 
+                            rustplus.sendTeamMessage(bot + language.saved);
+                        }
                     } else {
-                        rustplus.sendTeamMessage(language.not_auth);
+                        rustplus.sendTeamMessage(bot + language.not_auth);
                     }
                 }
 
@@ -195,12 +195,12 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
 
                     if(memo[1]) {
                         if(memo[1] === 'help') {
-                            rustplus.sendTeamMessage(command.openmemo + ' [SaveName]');
+                            rustplus.sendTeamMessage(bot + command.openmemo + ' [SaveName]');
                         } else {
                             if(memoJson[memo[1]]) {
-                                rustplus.sendTeamMessage(memo[1] + " : " + memoJson[memo[1]]);
+                                rustplus.sendTeamMessage(bot + memo[1] + " : " + memoJson[memo[1]]);
                             } else {
-                                rustplus.sendTeamMessage(memo[1] + language.not_saved);
+                                rustplus.sendTeamMessage(bot + memo[1] + language.not_saved);
                             }
                         }
                     } else {
@@ -210,23 +210,23 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
 
                 if(message.includes(prefix + command.add)) { // adddevice command
 
-                    if(name === owner.Owner) {
+                    if(name === auth.Owner) {
                         let entityID = message.slice(prefix + command.add).trim().split(/ +/);
 
                         if(!entityID[1]) { //エンティティIDが入力されていなかったら
-                          rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
+                          rustplus.sendTeamMessage(bot + command.add + ' entityID ' + 'saveName');
                         }
                         if (!entityID[2]) { //登録名が入力されていなかったら
-                          rustplus.sendTeamMessage(command.add + ' entityID ' + 'saveName');
+                          rustplus.sendTeamMessage(bot + command.add + ' entityID ' + 'saveName');
                         }
-    
+
                         rustplus.getEntityInfo(entityID[1], (info) => {
                             let i = info.response;
-    
+
                             if(i.error) { //responseにエラーがあったら
                                 rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
                             }
-    
+
                             else if(i.entityInfo) { //entityInfoが出てきたら
                                 write('./device.json', entityID[2], entityID[1])
                                 rustplus.sendTeamMessage(bot + language.saved)
@@ -243,7 +243,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                     let devicename = message.slice(prefix + command.add).trim().split(/ +/);
 
                     if(!devicename[1]) {
-                      rustplus.sendTeamMessage(language.no_name);
+                      rustplus.sendTeamMessage(bot + language.no_name);
                       return false;
                     }
 
@@ -304,26 +304,53 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                         rustplus.sendTeamMessage(bot + devicename[1] + language.not_device);
                     }
                 }
+
+                if(message.includes(prefix + command.changeLeader)) { //　リーダーを変更
+                    const args = message.slice(prefix + command.changeLeader).trim().split(/ +/);
+
+                    if(args[1]) {
+                        if(args[1] === 'help') {
+                            rustplus.sendTeamMessage(bot + command.changeLeader + 'new LeaderSteamID')
+                        }
+                        if(args[1].includes('1234567890')) {
+                            rustplus.getTeamInfo((info) => {
+                                let leaderID = info.response.teaminfo.leaderSteamId.toString();
+                                if(leaderID === steamID) {
+                                    rustplus.sendRequestAsync({
+                                        promoteToLeader: {
+                                          steamId: args[1],
+                                        },
+                                    })
+                                    rustplus.sendTeamMessage(bot + language.changed_leader)
+                                } else {
+                                    rustplus.sendTeamMessage(bot + language.not_auth + '(You are Not Leader)');
+                                }                             
+                            })
+                        } else {
+                            rustplus.sendTeamMessage(bot + language.no_steam);
+                        }
+                    } else {
+                        rustplus.sendTeamMessage(bot + language.no_steam);
+                    }
+                }
             }
         }
     });
 
     const input = readLine.createInterface({ input: process.stdin }); //　入力を受け取る↓
     input.on('line', (msg) => {
-        if(msg === 'getToken') { //あまり需要がない...
+        if(msg === 'getToken') {
             readLine.moveCursor(process.stdout, 0, -1);
             Print('HELP', language.get_token)
         } else if (msg === 'clear') {
             readLine.moveCursor(process.stdout, 0, -1);
             console.clear();
-        }
-        else if(msg === 'exit') {
+        } else if(msg === 'exit') {
             readLine.moveCursor(process.stdout, 0, 1);
             Print('INFO', language.process_exit, false);
             rustplus.disconnect();
-            setTimeout(() => process.exit(), 3000);
-        }
-        else {
+            setTimeout(() => process.exit(), 2000);
+        } else {
             readLine.moveCursor(process.stdout, 0, -1); //入力を受け取った後上の一行を削除する
             rustplus.sendTeamMessage(msg); //　チームチャットにメッセージを送信
         }
@@ -332,7 +359,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
     rustplus.connect(); // サーバーに接続
 }
 else { // config.jsonがないとrustplusに接続させないようにさせプログラムを終了する
-    console.clear(); /* \x1b[36m....ってやつは色を指定するためのコード */
+    console.clear();
     Print('INFO', language.notfound_config, false);
     console.log("\x1b[36m[" + getTime(true) + "][INFO]  \x1b[39m: \x1b[32mnpx @liamcottle/rustplus.js fcm-register\x1b[39m" + language.run_register);
     console.log("\x1b[36m[" + getTime(true) + "][INFO] \x1b[39m : " + language.run_fcmprogram);

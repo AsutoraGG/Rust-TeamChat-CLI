@@ -7,5 +7,6 @@
     "off": "off",
     "rusttime": "time",
     "addmemo": "addmemo",
-    "openmemo": "openmemo"
+    "openmemo": "openmemo",
+    "changeLeader": "leader"
 }

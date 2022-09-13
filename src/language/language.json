@@ -23,13 +23,15 @@
     "saved": "保存しました",
     "not_saved": "はとうろくされていません",
     "no_name": "とうろくめいをにゅうりょくしてください",
+    "no_steam": "SteamIDをにゅうりょくしてください",
     "no_member": "はチームにいません",
     "turn_on": " is On",
     "not_auth": "あなたはこのコマンドがつかえません",
     "turn_off": " is Off",
     "on_now": "はすでにONです",
     "off_now": "はすでにOFFです",
-    "command_help1": "げんざいのコマンドの数 : ",
+    "changed_leader": "リーダーはこうしんされました",
     "not_device": "はとうろくさていません。プログラムを再度きどうしなおすかデバイスをとうろくしてください",
-    "process_exit": "プログラムを終了します"
+    "process_exit": "プログラムを終了します",
+    "no_Owner": "オーナーが登録されていません。auth.jsonを更新してください"
 }
