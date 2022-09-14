@@ -9,7 +9,6 @@
     "error_ETIMEDOUT": "サーバーの接続に失敗しました。IP,PORTが違う又はサーバーがオフラインです",
     "notfound_config": "config.jsonは見つかりませんでした!",
     "connected_rustplus": "RustPlusに接続しました",
-    "no_teampop": "現在チームに誰もいない、またはチームが作成されていません",
     "config_error": "config.jsonは見つかりましたが中身に問題があります",
     "default_prefix": "初期設定ではPrefixは ';'　に設定されています",
     "current_pop": "メンバー数: ",
@@ -21,10 +20,8 @@
     "no_entityid": "エンティティIDを入力してください",
     "invalid_entityid": "エンティティIDが無効です",
     "saved": "保存しました",
+    "removed": "さくじょしました!",
     "not_saved": "はとうろくされていません",
-    "no_name": "とうろくめいをにゅうりょくしてください",
-    "no_steam": "SteamIDをにゅうりょくしてください",
-    "no_member": "はチームにいません",
     "turn_on": " is On",
     "not_auth": "あなたはこのコマンドがつかえません",
     "turn_off": " is Off",
@@ -33,5 +30,10 @@
     "changed_leader": "リーダーはこうしんされました",
     "not_device": "はとうろくさていません。プログラムを再度きどうしなおすかデバイスをとうろくしてください",
     "process_exit": "プログラムを終了します",
-    "no_Owner": "オーナーが登録されていません。auth.jsonを更新してください"
+    "no_Owner": "オーナーが登録されていません。auth.jsonを更新してください",
+    "no_name": "とうろくめいをにゅうりょくしてください",
+    "no_steam": "SteamIDをにゅうりょくしてください",
+    "no_member": "はチームにいません",
+    "no_teampop": "現在チームに誰もいない、またはチームが作成されていません",
+    "not_found": "がみつかりません!"
 }

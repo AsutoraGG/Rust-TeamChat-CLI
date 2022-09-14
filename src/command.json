@@ -8,5 +8,7 @@
     "rusttime": "time",
     "addmemo": "addmemo",
     "openmemo": "openmemo",
-    "changeLeader": "leader"
+    "changeLeader": "leader",
+    "removedevice": "removedevice",
+    "addAuth": "addauth"
 }
