@@ -10,5 +10,6 @@
     "openmemo": "openmemo",
     "changeLeader": "leader",
     "removedevice": "removedevice",
-    "addAuth": "addauth"
+    "addAuth": "addauth",
+    "removeAuth": "removeauth"
 }
