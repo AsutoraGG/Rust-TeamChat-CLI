@@ -1,8 +1,8 @@
 # Rust TeamChat CLI
 [rustplus.js](https://github.com/liamcottle/rustplus.js)を使用し作られたCLIです。
 ### -できること-
-▪️ ターミナルでチームチャットにメッセージを送信、取得が可能
-▪️ ゲーム内コマンドが使用可能
+- ターミナルでチームチャットにメッセージを送信、取得が可能
+- ゲーム内コマンドが使用可能
 
 
 ## - インストール -
@@ -58,7 +58,7 @@ input : ``off [saveName]``
 メモに文字列を追加します。(パスワードとか?...)
 input : ``addmemo [SaveName] [文字列]``
 
-## openmemo
+### openmemo
 登録してある文字列を確認することができます(SaveNameはaddmemoで登録した名前です
 input : ``openmemo [SaveName]``
 output : ``文字列``
