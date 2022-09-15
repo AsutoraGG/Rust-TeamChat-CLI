@@ -329,12 +329,12 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
 
                     if(args[1]) {
                         if(args[1] === 'help') {
-                            rustplus.sendTeamMessage(bot + command.changeLeader + 'new LeaderSteamID')
+                            rustplus.sendTeamMessage(bot + command.changeLeader + '[NewSteamID]')
                         }
                         if(args[1].includes('1234567890')) {
                             rustplus.getTeamInfo((info) => {
                                 let leaderID = info.response.teaminfo.leaderSteamId.toString();
-                                if(leaderID === steamID) {
+                                if(steamID === leaderID) {
                                     rustplus.sendRequestAsync({
                                         promoteToLeader: {
                                           steamId: args[1],
@@ -358,7 +358,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                         const args = message.slice(prefix + command.removedevice).trim().split(/ +/);
 
                         if(args[1] === 'help') {
-                            rustplus.sendTeamMessage(bot + command.removedevice + '[SaveName]');
+                            rustplus.sendTeamMessage(bot + command.removedevice + ' [SaveName]');
                         }
                         
                         if(existsSync('device.json')) {
@@ -385,14 +385,14 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
 
                     if(name === auth.Owner)  {
                         if(!args[1]) {
-                            rustplus.sendTeamMessage(bot + command.addAuth + 'PlayerName');
+                            rustplus.sendTeamMessage(bot + command.addAuth + ' [PlayerName]');
                         } else {
                             if(args[1] === 'help') {
-                                rustplus.sendTeamMessage(bot + command.addAuth + 'PlayerName');
+                                rustplus.sendTeamMessage(bot + command.addAuth + ' [PlayerName]');
+                            } else {
+                                write('./auth.json', args[1], 'ok');
+                                rustplus.sendTeamMessage(bot + language.saved);
                             }
-
-                            write('./auth.json', args[1], 'ok');
-                            rustplus.sendTeamMessage(bot + language.saved);
                         }
                     } else {
                         rustplus.sendTeamMessage(bot + language.not_auth);
@@ -402,27 +402,50 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 if(message.includes(prefix + command.removeAuth)) { //権限を削除
                     if(name === auth.Owner) {
                         const args = message.slice(prefix + command.removeAuth).trim().split(/ +/);
-
-                        if(args[1] === 'help') {
-                            rustplus.sendTeamMessage(bot + command.removeAuth + '[PlayerName]');
-                        }
                         
-                        if(existsSync('auth.json')) {
-                            const d = readFileSync('./auth.json');
-                            const j = JSON.parse(d);
-
-                            if(auth[args[1]]) {
-                                delete j[args[1]];
-                                writeFile('./device.json', JSON.stringify(j, null, 2));
-                                rustplus.sendTeamMessage(bot + language.removed);
+                        if(args[1]) {
+                            if(args[1] === 'help') {
+                                rustplus.sendTeamMessage(bot + command.removeAuth + ' [PlayerName]');
                             } else {
-                                rustplus.sendTeamMessage(bot + args[1] + language.not_found)
+                                if(existsSync('auth.json')) {
+                                    const d = readFileSync('./auth.json');
+                                    const j = JSON.parse(d);
+        
+                                    if(auth[args[1]]) {
+                                        delete j[args[1]];
+                                        writeFile('./device.json', JSON.stringify(j, null, 2));
+                                        rustplus.sendTeamMessage(bot + language.removed);
+                                    } else {
+                                        rustplus.sendTeamMessage(bot + args[1] + language.not_found)
+                                    }
+                                } else {
+                                    print('ERORR', 'auth.json' + language.not_found, false);
+                                }
                             }
                         } else {
-                            print('ERORR', 'auth.json' + language.not_found, false);
+                            rustplus.sendTeamMessage(bot + command.removeAuth + ' [PlayerName]');
                         }
                     } else {
                         rustplus.sendTeamMessage(language.not_auth);
+                    }
+                }
+
+                if(message.includes(prefix + command.DEV.strobe)) { //テスト段階なためまだリリースしません^^
+                    const args = message.slice(prefix + command).trim().split(/ +/);
+
+                    if(args[1]) {
+                        if(args[1] === 'help') {
+                            rustplus.sendTeamMessage(command.DEV.strobe + ' [SaveName]');
+                        } else {
+                            if(device[args[1]]) {
+                                rustplus.strobe(device[args[1]], 3000, true);
+                                setTimeout(() => rustplus.strobe(device[args[1]], 3000, false), 3000)
+                            } else {
+                                rustplus.sendTeamMessage(language.no_name);
+                            }
+                        }
+                    } else {
+                        rustplus.sendTeamMessage(language.no_name);
                     }
                 }
             }
@@ -438,7 +461,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
             readLine.moveCursor(process.stdout, 0, -1);
             console.clear();
         } else if(msg === 'exit') {
-            readLine.moveCursor(process.stdout, 0, 1);
+            readLine.moveCursor(process.stdout, 0, -1);
             Print('INFO', language.process_exit, false);
             rustplus.disconnect();
             setTimeout(() => process.exit(), 2000);
