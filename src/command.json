@@ -11,5 +11,8 @@
     "changeLeader": "leader",
     "removedevice": "removedevice",
     "addAuth": "addauth",
-    "removeAuth": "removeauth"
+    "removeAuth": "removeauth",
+    "DEV": {
+        "strobe": "strobe"
+    }
 }

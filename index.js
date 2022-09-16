@@ -81,7 +81,6 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
         Print('INFO', language.default_prefix, false);
         rustplus.sendTeamMessage('[BOT] : Connected');
 
-        /*
         rustplus.getTeamInfo(team => { //チーム人数が1の場合ここを無効にしてください(囲めば無効にできます)
             let member = team.response.teamInfo.members;
             if(member.length === 1) {
@@ -89,7 +88,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 rustplus.disconnect();
                 process.exit(0);
             }
-        }) */
+        })
 
         setTimeout(() => console.clear(), 3000)
         if(config.Ingame.command === true) {
@@ -329,21 +328,26 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
 
                     if(args[1]) {
                         if(args[1] === 'help') {
-                            rustplus.sendTeamMessage(bot + command.changeLeader + '[NewSteamID]')
+                            rustplus.sendTeamMessage(bot + command.changeLeader + ' [NewSteamID]')
                         }
-                        if(args[1].includes('1234567890')) {
+                        if(args[1]) {
                             rustplus.getTeamInfo((info) => {
-                                let leaderID = info.response.teaminfo.leaderSteamId.toString();
+                                let leaderID = info.response.teamInfo.leaderSteamId.toString();
+                                console.log(leaderID);
                                 if(steamID === leaderID) {
-                                    rustplus.sendRequestAsync({
-                                        promoteToLeader: {
-                                          steamId: args[1],
-                                        },
-                                    })
-                                    rustplus.sendTeamMessage(bot + language.changed_leader)
+                                    if(args[1] === leaderID) {
+                                        rustplus.sendTeamMessage(language.leader_now);
+                                    } else {
+                                        rustplus.sendRequestAsync({
+                                            promoteToLeader: {
+                                                steamId: args[1],
+                                            }
+                                        });
+                                        rustplus.sendTeamMessage(bot + language.changed_leader)
+                                    }
                                 } else {
                                     rustplus.sendTeamMessage(bot + language.not_auth + '(You are Not Leader)');
-                                }                             
+                                }                
                             })
                         } else {
                             rustplus.sendTeamMessage(bot + language.no_steam);

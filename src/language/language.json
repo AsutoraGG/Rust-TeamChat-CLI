@@ -27,6 +27,7 @@
     "turn_off": " is Off",
     "on_now": "はすでにONです",
     "off_now": "はすでにOFFです",
+    "leader_now": "あなたはすでにリーダーです",
     "changed_leader": "リーダーはこうしんされました",
     "not_device": "はとうろくさていません。プログラムを再度きどうしなおすかデバイスをとうろくしてください",
     "process_exit": "プログラムを終了します",
