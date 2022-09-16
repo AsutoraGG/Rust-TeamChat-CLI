@@ -67,8 +67,8 @@ input : ``openmemo [SaveName]``
 output : ``文字列``
 
 ### changeLeader
-|---開発段階です---|　まだテストしていない
-成功すればリーダーを他人に渡せます
+もし使う人がチームリーダーだったらリーダーをチャットで変更できます。
+input : ``leader [NewLeaderSteamID]``
 
 ## Help
 Discord : Asutora#7267
