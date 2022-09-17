@@ -100,7 +100,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
     });
 
     rustplus.on('error', (e) => { /* RustPlus.jsでエラーが起こったら */
-        if(e === 'Error: Parse Error: Expected HTTP/') {
+        if(e === 'Error: Parse Error: Expected HTTP/') { //たまに出る謎のエラー
             Print('ERROR', language.error_parse, false);
             process.exit(0);
         } else if(e === `Error: connect ETIMEDOUT ${config.ID}:${config.PORT}`) {
@@ -115,7 +115,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
     });
 
     rustplus.on('disconnected', () => {
-        Print('INFO', 'Disconnected from Server!', false);
+        Print('INFO', 'Disconnected from Server', false);
     })
 
     rustplus.on('message', msg => { /* チームチャットでメッセージを受信したときの処理(msg = チームチャットの詳細) */
@@ -421,7 +421,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                 if(message.includes(prefix + command.removeAuth)) { //権限を削除
                     if(name === auth.Owner) {
                         const args = message.slice(prefix + command.removeAuth).trim().split("*");
-                        
+
                         if(args[1]) {
                             if(args[1] === 'help') {
                                 rustplus.sendTeamMessage(bot + command.removeAuth + ' [PlayerName]' + '(*' + language.need_args + ')');
@@ -432,7 +432,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
         
                                     if(auth[args[1]]) {
                                         delete j[args[1]];
-                                        writeFile('./device.json', JSON.stringify(j, null, 2));
+                                        writeFile('./auth.json', JSON.stringify(j, null, 2));
                                         rustplus.sendTeamMessage(bot + language.removed);
                                     } else {
                                         rustplus.sendTeamMessage(bot + args[1] + language.not_found)
@@ -442,7 +442,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                                 }
                             }
                         } else {
-                            rustplus.sendTeamMessage(bot + command.removeAuth + ' [PlayerName]' + '(*' + language.need_args + ')');
+                            rustplus.sendTeamMessage(bot + command.removeAuth + ' *[PlayerName]' + '(*' + language.need_args + ')');
                         }
                     } else {
                         rustplus.sendTeamMessage(language.not_auth);
