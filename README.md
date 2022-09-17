@@ -70,5 +70,9 @@ output : ``文字列``
 もし使う人がチームリーダーだったらリーダーをチャットで変更できます。  
 input : ``leader [NewLeaderSteamID]``
 
+### steamid
+このコマンドを使用した人のSteamIDを取得します。  
+output : ``PlayerName : SteamID``
+
 ## Help
 Discord : Asutora#7267
