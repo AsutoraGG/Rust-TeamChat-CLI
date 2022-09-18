@@ -110,7 +110,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
         if(e === 'Error: Parse Error: Expected HTTP/') { //たまに出る謎のエラー
             Print('ERROR', language.error_parse, false);
             process.exit(0);
-        } else if(e === `Error: connect ETIMEDOUT ${config.ID}:${config.PORT}`) {
+        } else if(e === `Error: connect ETIMEDOUT ${config.IP}:${config.PORT}`) {
             Print('ERROR', language.error_ETIMEDOUT, false);
             process.exit(0);
         }
@@ -218,7 +218,12 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                                             online += `"${player.name}" `;
                                         }
                                     }
-                                    rustplus.sendTeamMessage(online);
+
+                                    if(online === language.team_online + ' : ') {
+                                        rustplus.sendTeamMessage(language.no_online);
+                                    } else {
+                                        rustplus.sendTeamMessage(online);
+                                    }
                                 } else if(args[1] === 'offline') {
                                     let offline = language.team_offline + ' : ';
                                     for (let player of team) {
@@ -226,7 +231,12 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                                             offline += `"${player.name}" `;
                                         }
                                     }
-                                    rustplus.sendTeamMessage(offline)
+
+                                    if(offline === language.team_offline + ' : ') {
+                                        rustplus.sendTeamMessage(language.no_offline)
+                                    } else {
+                                        rustplus.sendTeamMessage(offline)
+                                    }
                                 } else if(args[1] === 'alive') {
                                     let alive = language.team_alive + ' : ';
                                     for (let player of team) {
@@ -234,7 +244,12 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                                             alive += `"${player.name}" `;
                                         }
                                     }
-                                    rustplus.sendTeamMessage(alive);
+
+                                    if(alive === language.team_alive + ' : ') {
+                                        rustplus.sendTeamMessage(language.no_alive);
+                                    } else {
+                                        rustplus.sendTeamMessage(alive);
+                                    }
                                 } else if(args[1] === 'dead') {
                                     let dead = language.team_dead + ' : ';
                                     for (let player of team) {
@@ -242,7 +257,11 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
                                             dead += `"${player.name}" `;
                                         }
                                     }
-                                    rustplus.sendTeamMessage(dead);
+                                    if(dead === language.team_dead + ' : ') {
+                                        rustplus.sendTeamMessage(language.no_dead);
+                                    } else {
+                                        rustplus.sendTeamMessage(dead);
+                                    }
                                 } else {
                                     rustplus.sendTeamMessage(command.team + ' [online || offline || dead || alive]')
                                 }
@@ -410,7 +429,7 @@ if (existsSync('./config.json')) { /* ファイルがあるか */
 
                                 if(steamID === leaderID) {
                                     if(args[1] === leaderID) {
-                                        rustplus.sendTeamMessage(language.leader_now);
+                                        rustplus.sendTeamMessage(bot + language.leader_now);
                                     } else {
                                         if(sID.isValidIndividual()) { // 有効なSteamIDか確認
                                             rustplus.sendRequestAsync({
