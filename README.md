@@ -74,5 +74,10 @@ input : ``leader [NewLeaderSteamID]``
 このコマンドを使用した人のSteamIDを取得します。  
 output : ``PlayerName : SteamID``
 
+### teamInfo
+誰が生きているか、死んでいるか、オンラインか、オフラインかが確認できます  
+dead, alive, online, offlineのどれかを入力してください  
+input : ``teamInfo [dead, alive, online, offline]``
+
 ## Help
 Discord : Asutora#7267
