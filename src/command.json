@@ -13,6 +13,8 @@
     "removedevice": "removedevice",
     "addAuth": "addauth",
     "removeAuth": "removeauth",
+    "team": "teamInfo",
+    "setPrefix": "setprefix",
     "DEV": {
         "strobe": "strobe"
     }
