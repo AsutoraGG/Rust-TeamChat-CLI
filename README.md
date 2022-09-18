@@ -81,5 +81,3 @@ input : ``teamInfo [dead, alive, online, offline]``
 
 ## Help
 Discord : Asutora#7267
-
-チームチャットを受け取るたび(何かコンソールログに表示されたら)にメモリ使用量が0.5 ~ 1MB使うのでたまに*clear*を使ってコンソールをクリアすることをお勧めします
