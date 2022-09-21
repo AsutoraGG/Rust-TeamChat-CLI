@@ -22,6 +22,8 @@
     "team_online": "オンライン",
     "invalid_entityid": "エンティティIDが無効です",
     "need_args": "をかならずにゅうりょくしてください",
+    "translate_error": "へんかんするげんごがまちがっています",
+    "translate_chinese": "ちゅうごくごは[Chinese Simplified]または[zh-cn]です。",
     "saved": "保存しました",
     "removed": "さくじょしました!",
     "turn_on": " is On",

@@ -14,8 +14,9 @@
     "addAuth": "addauth",
     "removeAuth": "removeauth",
     "team": "teamInfo",
-    "setPrefix": "setprefix",
+    "translate": "translate",
     "DEV": {
-        "strobe": "strobe"
+        "strobe": "strobe",
+        "test": "test"
     }
 }
