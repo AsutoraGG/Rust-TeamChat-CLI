@@ -66,6 +66,10 @@ input : ``addmemo [SaveName] [文字列]``
 input : ``openmemo [SaveName]``  
 output : ``文字列``
 
+### deletememo
+登録してある文字列を削除します。  
+input : ``deletememo [SaveName]``  
+
 ### changeLeader
 もし使う人がチームリーダーだったらリーダーをチャットで変更できます。  
 input : ``leader [NewLeaderSteamID]``
