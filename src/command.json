@@ -17,7 +17,6 @@
     "team": "teamInfo",
     "translate": "translate",
     "DEV": {
-        "strobe": "strobe",
-        "test": "test"
+        "strobe": "strobe"
     }
 }

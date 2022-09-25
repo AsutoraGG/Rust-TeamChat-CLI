@@ -87,7 +87,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         writeFile('./memo.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved memo.json', false);
     }
-    
+
     const config = require('./config.json');
     const auth = require('./auth.json');
     const auth_path = './auth.json';
@@ -201,7 +201,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                             decimalTime = decimalTime - (hours * 60 * 60);
                             var minutes = Math.floor((decimalTime / 60));
                             decimalTime = decimalTime - (minutes * 60);
-    
+
                             return hours + ":" + minutes + language.time_min;
                         }
                         rustplus.getTime((Time) => {
@@ -234,7 +234,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                     if(read(auth_path)[name] || name === read(auth_path).Owner) {
                         rustplus.getTeamInfo((info) => {
                             const team = info.response.teamInfo.members;
-    
+
                             if(args[1]) {
                                 if(args[1] === 'help') {
                                     rustplus.sendTeamMessage(command.team + ' [online || offline || dead || alive]')
@@ -371,7 +371,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                             }
                             rustplus.getEntityInfo(entityID[1], (info) => {
                                 let i = info.response;
-    
+
                                 if(i.error) { //responseにエラーがあったら
                                     rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
                                 } else if(i.entityInfo) { //entityInfoが出てきたら
@@ -465,7 +465,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                             } else {
                                 rustplus.getTeamInfo((info) => {
                                     let leaderID = info.response.teamInfo.leaderSteamId.toString();
-    
+
                                     if(steamID === leaderID) {
                                         if(args[1] === leaderID) {
                                             rustplus.sendTeamMessage(bot + language.leader_now);
@@ -483,7 +483,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                                         }
                                     } else {
                                         rustplus.sendTeamMessage(bot + language.not_auth + '(You are Not Leader)');
-                                    }                
+                                    }
                                 })
                             }
                         } else {
@@ -502,11 +502,11 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                             if(args[1] === 'help') {
                                 rustplus.sendTeamMessage(bot + command.removedevice + ' [SaveName]');
                             }
-                            
+
                             if(existsSync('device.json')) {
                                 const d = readFileSync('./device.json');
                                 const j = JSON.parse(d);
-    
+
                                 if(device[args[1]]) {
                                     deleteObject('device.json', args[1]);
                                     rustplus.sendTeamMessage(bot + language.removed);
@@ -573,7 +573,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                 if(message.includes(prefix + command.translate)) { //翻訳
                     if(read(auth_path)[name] || name === read(auth_path).Owner) {
                         const args = message.slice(prefix + command.translate).trim().split("*");
-                        
+
                         if(args[1] && args[2]) {
                             if(args[1] === 'help') {
                                 rustplus.sendTeamMessage(bot + command.translate + '*[String] *[Language]');
@@ -582,7 +582,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                                 rustplus.sendTeamMessage(language.translate_chinese);
                                 return false;
                             }
-        
+
                             Translate(args[1], {
                                 from: 'auto',
                                 to: args[2]
