@@ -4,6 +4,7 @@ const Translate = require('translate-google');
 const readLine = require('readline');
 const { existsSync, readFileSync, writeFileSync } = require('fs');
 const { writeFile } = require('fs/promises');
+const { listen } = require('push-receiver');
 
 const input = readLine.createInterface({ input: process.stdin }); //　入力を受け取る
 
@@ -31,6 +32,7 @@ function getTime(q) {
 }
 
 function Print(a, b, c, d, e) {
+    /* a = INFO等, b = メッセージ, c = チームチャットか, d = チームチャットのメッセージ, e = チームチャットに送信したプレイヤー名*/
     if (c === true) {
         if (!d) return console.log(language.print_error);
         console.log("\x1b[1m\x1b[32m" + getTime(true) + "][TeamChat] : " + "(" + e + ") : " + d)
@@ -41,6 +43,8 @@ function Print(a, b, c, d, e) {
             console.log("\x1b[1m\x1b[31m[" + getTime(true) + "][" + a + "] \x1b[39m: " + b);
         } else if(a === 'HELP') {
             console.log("\x1b[1m\x1b[35m[" + getTime(true) + "][" + a + "] \x1b[39m: " + b);
+        } else if(a === 'PAIRING') {
+            console.log("\x1b[1m\x1b[32m[" + getTime(true) + "][" + a + "] \x1b[39m: " + b);
         }
     }
 }
@@ -49,9 +53,11 @@ function setTitle(title) {
 	process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
 }
 
-function read(path) {
-    let data = readFileSync(path, "utf8");
-    return JSON.parse(data);
+function read(path, pars) {
+    const r = readFileSync(path, 'utf-8');
+    if (pars === true) return JSON.parse(r)
+    else if (pars === false) return JSON.stringify(r);
+    else return JSON.parse(r)
 };
 
 function write(path, property, value) {
@@ -75,9 +81,10 @@ function deleteObject(filename, object) {
 console.clear();
 input.pause();
 
-
 if (existsSync('./config.json')) { // config.jsonはこのプログラムでは生成しても意味がないので
-    if(!existsSync('./auth.json')) { //これらはこのプログラムで生成しても問題がないため
+    let databas = './src/database.json'; // idを保存するめのデータベース
+
+    if(!existsSync('./auth.json')) { //ファイルがなかったら作成又は終了
         writeFile('./auth.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved auth.json', false);
     } else if(!existsSync('./device.json')) {
@@ -86,19 +93,27 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     } else if(!existsSync('./memo.json')) {
         writeFile('./memo.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved memo.json', false);
+    } else if(!existsSync('./src/recycle.json') || !existsSync('./src/')) {
+        Print('ERROR', "src folder is don't Remove!")
+        process.exit(0);
+    } else if(!existsSync('./rustplus.config.json')) {
+        Print('ERROR', 'rustplus.config.json is not Found!', false);
+        Print('ERROR', 'Run' + '\x1b[34m npx @liamcottle/rustplus.js fcm-register\x1b[0m');
+        process.exit(0);
     }
 
     const config = require('./config.json');
     const auth = require('./auth.json');
     const auth_path = './auth.json';
+    let bot = '[BOT] : ';
 
-    if(!auth.Owner) {
+    if(!auth.Owner) {　//オーナーが登録されてなかったら
         Print('ERROR', language.no_Owner, false);
         Print('ERROR', language.process_exit, false);
         process.exit(0);
     }
 
-    if(!config.IP || !config.Ingame) { /* もしファイルがあっても内容が書かれてなかったら */
+    if(!config.IP || !config.Ingame) { // もしファイルがあっても内容が書かれてなかったら
         Print('ERROR', language.config_error, false);
         process.exit(0);
     }
@@ -109,16 +124,16 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     rustplus.on('connected', () => { /* サーバーに接続されたら */
         Print('INFO', language.connected_rustplus, false);
         Print('INFO', language.default_prefix, false);
-        rustplus.sendTeamMessage('[BOT] : Connected');
+        rustplus.sendTeamMessage(bot + 'Connected!');
 
-        rustplus.getTeamInfo(team => { //チーム人数が1の場合ここを無効にしてください(囲めば無効にできます)
-            let member = team.response.teamInfo.members;
-            if(member.length === 1) {
-                Print('ERROR', language.no_teampop, false);
-                rustplus.disconnect();
-                process.exit(0);
-            }
-        });
+        // rustplus.getTeamInfo(team => { //チーム人数が1の場合ここを無効にしてください(囲めば無効にできます)
+        //     let member = team.response.teamInfo.members;
+        //     if(member.length === 1) {
+        //         Print('ERROR', language.no_teampop, false);
+        //         rustplus.disconnect();
+        //         process.exit(0);
+        //     }
+        // });
 
         setTimeout(() => {
             console.clear();
@@ -130,6 +145,45 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         } else {
             setTitle('Rust-TeamChat-CLI | Made by @AsutoraGG | In Game Command = false')
         }
+
+        function onNotification({ notification, persistentId }) { //通知の処理 + idの保存
+            const i = JSON.stringify(persistentId);
+            const id = i.replace(/"/g, '');
+            const database_data = read(databas, true);
+    
+            database_data.push(id);
+    
+            var newDate = JSON.stringify(database_data);
+            writeFileSync(databas, newDate, 'utf-8')
+    
+            const data = notification.data;
+            const body = JSON.parse(data.body);
+    
+            if (data.channelId === 'pairing') {
+                if (body.type === 'entity') {
+                    if (body.entityType === '1') {
+                        Print('PAIRING', '-- SmartSwitch -- EntityID:' + body.entityId);
+                    } else if (body.entityType === '2') {
+                        Print('PAIRING', '-- Smart Alarm -- EntityID:' + body.entityId);
+                    } else if (body.entityType === '3') {
+                        Print('PAIRING', '-- Storage Monitor -- EntityID: ' + body.entityId);
+                    }
+                } else if (body.type === 'server') {
+                    Print('PAIRING', '-- Server -- PlayerToken: ' + body.playerToken);
+                }
+            } else if (data.channelId === 'alarm') {
+                rustplus.sendTeamMessage('[ALARM] : [' + data.title + '] '+ data.message)
+            }
+        }
+
+        async function startListning() {
+            const credentials = read('./rustplus.config.json').fcm_credentials;
+            let persistentIds = read(databas, true);
+    
+            await listen({ ...credentials, persistentIds }, onNotification);
+        }
+    
+        startListning();
     });
 
     rustplus.on('error', (e) => { /* RustPlus.jsでエラーが起こったら */
@@ -150,6 +204,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     });
 
     rustplus.on('disconnected', () => {
+        input.pause();
         Print('INFO', 'Disconnected from Server', false);
     })
 
@@ -157,12 +212,12 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         const command = require('./src/command.json')
         const device = require('./device.json');
         const device_path = './device.json';
+        const recycle = require('./src/recycle.json');
 
         if (msg.broadcast && msg.broadcast.teamMessage) {
             let message = msg.broadcast.teamMessage.message.message.toString(); // メッセージの内容
             let name = msg.broadcast.teamMessage.message.name; //　メッセージを送信した人の名前
             let steamID = msg.broadcast.teamMessage.message.steamId.toString(); //　スチームID
-            let bot = '[BOT] : ';
 
             console.log("[" + getTime(true) + "][CHAT] : " + "[" + name + "] : " + message); // This is team Chat log
 
@@ -323,7 +378,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                 }
 
                 if(message.includes(prefix + command.removememo)) {
-                    if(read(auth_path)[name] || name === read(auth_path).Owner) {
+                    if(name === read(auth_path).Owner) {
                         const args = message.slice(prefix + command.removememo).trim().split(/ +/);
 
                         if(args[1]) {
@@ -591,10 +646,35 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                             }).catch(err => {
                                 if (err.toString().includes('not supported')) {
                                     rustplus.sendTeamMessage(language.translate_error);
+                                } else {
+                                    Print('ERROR', err, false);
                                 }
                             })
                         } else {
                             rustplus.sendTeamMessage(bot + command.translate + '*[String] *[Language]' + language.need_args);
+                        }
+                    } else {
+                        rustplus.sendTeamMessage(bot + language.not_auth);
+                    }
+                }
+
+                if(message.includes(prefix + command.recycle)) { //リサイクラー
+                    if(read(auth_path)[name] || name === read(auth_path).Owner) {
+                        const args = message.slice(prefix + command.recycle).trim().split(/ +/);
+                        
+                        if(args[1]) {
+                            if(args[1] === 'help') {
+                                rustplus.sendTeamMessage(bot + command.recycle + ' [ItemName(No Space)]');
+                            } else {
+                                let LowerCase = args[1].toLowerCase();
+                                if(recycle[Lower]) {
+                                    rustplus.sendTeamMessage(bot + recycle[LowerCase]);
+                                } else {
+                                    rustplus.sendTeamMessage(bot + LowerCase + language.not_saved);
+                                }
+                            }
+                        } else {
+                            rustplus.sendTeamMessage(bot + command.recycle + ' [ItemName(No Space)]');
                         }
                     } else {
                         rustplus.sendTeamMessage(bot + language.not_auth);
@@ -613,6 +693,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
             console.clear();
         } else if(msg === 'exit') {
             readLine.moveCursor(process.stdout, 0, -1);
+            input.pause();
             Print('INFO', language.process_exit, false);
             rustplus.disconnect();
             setTimeout(() => process.exit(), 2000);

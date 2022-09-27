@@ -48,5 +48,8 @@
     "not_steamID": "はむこうなSteamIDです",
     "not_auth": "あなたはこのコマンドがつかえません",
     "not_saved": "はとうろくされていません",
-    "notfound_config": "config.jsonは見つかりませんでした!"
+    "notfound_config": "config.jsonは見つかりませんでした!",
+    "pairing_alarm": "スマートアラームがペアリングされました",
+    "pairing_switch": "スマートスイッチがペアリングされました",
+    "pairing_storage": "ストレージモニターがペアリングされました"
 }

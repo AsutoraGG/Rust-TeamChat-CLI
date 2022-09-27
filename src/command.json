@@ -16,6 +16,7 @@
     "removeAuth": "removeauth",
     "team": "teamInfo",
     "translate": "translate",
+    "recycle": "recycle",
     "DEV": {
         "strobe": "strobe"
     }

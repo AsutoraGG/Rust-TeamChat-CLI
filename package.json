@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@liamcottle/rustplus.js": "^2.3.0",
+    "push-receiver": "^2.1.1",
     "steamid": "^2.0.0",
     "translate-google": "^1.5.0"
   }
