@@ -82,16 +82,16 @@ output : ``PlayerName : SteamID``
 ### teamInfo
 誰が生きているか、死んでいるか、オンラインか、オフラインかが確認できます  
 dead, alive, online, offlineのどれかを入力してください  
-input : ``teamInfo [dead, alive, online, offline]``
+input : ``teamInfo [dead, alive, online, offline]``  
 
 ### translate
-入力された文字列を変換する言語に翻訳します
-input : ``translate *[翻訳する文字列] *[言語]``
+入力された文字列を変換する言語に翻訳します  
+input : ``translate *[翻訳する文字列] *[言語]``  
 
 ### recycle
-アイテム名を入力したら分解後のデータが送信されます
-input : ``recycle [アイテム名]``
-注:アイテム名は英語+空白はなし(大文字小文字は関係ないです)。対応されてないアイテムもまだあるので気分で追加していきます
+アイテム名を入力したら分解後のデータが送信されます  
+input : ``recycle [アイテム名]``  
+注:アイテム名は英語+空白はなし(大文字小文字は関係ないです)。対応されてないアイテムもまだあるので気分で追加していきます  
 
 ## Help
 Discord : Asutora#7267
