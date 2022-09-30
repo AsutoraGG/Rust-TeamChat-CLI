@@ -25,6 +25,7 @@
     "translate_error": "へんかんするげんごがまちがっています",
     "translate_chinese": "ちゅうごくごは[Chinese Simplified]または[zh-cn]です。",
     "saved": "保存しました",
+    "already_saved": "はすでにとうろくされています",
     "removed": "削除ました!",
     "turn_on": " is On",
     "turn_off": " is Off",
@@ -32,7 +33,7 @@
     "off_now": "はすでにOFFです",
     "leader_now": "あなたは既にリーダーです",
     "changed_leader": "リーダーは更新されました",
-    "not_device": "はとうろくさていません。プログラムを再度きどうしなおすかデバイスをとうろくしてください",
+    "not_device": "はとうろくさていません。デバイスを登録してください",
     "process_exit": "プログラムを終了します",
     "no_Owner": "オーナーが登録されていません。auth.jsonを更新してください",
     "no_name": "とうろくめいを入力してください",
@@ -48,8 +49,12 @@
     "not_steamID": "はむこうなSteamIDです",
     "not_auth": "あなたはこのコマンドがつかえません",
     "not_saved": "はとうろくされていません",
+    "no_device": "はゲームないにそんざいしません",
     "notfound_config": "config.jsonは見つかりませんでした!",
     "pairing_alarm": "スマートアラームがペアリングされました",
     "pairing_switch": "スマートスイッチがペアリングされました",
-    "pairing_storage": "ストレージモニターがペアリングされました"
+    "pairing_storage": "ストレージモニターがペアリングされました",
+    "TC_notfound": "で[MainTC]を登録してください",
+    "TC_decay": "メインTCがふうかしています",
+    "TC_WhenDecay": "ごにふうかします"
 }

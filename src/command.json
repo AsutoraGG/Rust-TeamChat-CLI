@@ -17,6 +17,7 @@
     "team": "teamInfo",
     "translate": "translate",
     "recycle": "recycle",
+    "mainTC": "mainTC",
     "DEV": {
         "strobe": "strobe"
     }
