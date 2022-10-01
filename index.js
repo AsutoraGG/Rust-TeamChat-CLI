@@ -1,12 +1,14 @@
 const RustPlus = require('@liamcottle/rustplus.js');
 const SteamID = require('steamid');
 const Translate = require('translate-google');
+const { notify } = require('node-notifier');
 const dayJS = require('dayjs');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const { listen } = require('push-receiver');
 require('dayjs/locale/ja');
 
 const readLine = require('readline');
+const path = require('path');
 const https = require('https');
 const { existsSync, readFileSync, writeFileSync } = require('fs');
 const { writeFile } = require('fs/promises');
@@ -223,6 +225,11 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                 }
             } else if (data.channelId === 'alarm') {
                 rustplus.sendTeamMessage('[ALARM] : [' + data.title + '] '+ data.message)
+                notify({
+                    title: '[' + data.title + ']',
+                    message: data.message,
+                    icon: path.join(__dirname, 'rust.svg')
+                })
             }
         }
 
@@ -263,6 +270,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         const device = require('./device.json');
         const device_path = './device.json';
         const recycle = require('./src/recycle.json');
+        const memo_path = './memo.json'
 
         if (msg.broadcast && msg.broadcast.teamMessage) {
             let message = msg.broadcast.teamMessage.message.message.toString(); // メッセージの内容
@@ -441,20 +449,22 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                 }
 
                 if(message.includes(prefix + command.addmemo)) { //メモに文字列を登録
-                    //たとえばだけどパスワードとか、拠点の座標とか、レイドターゲットとかメモしたいことを
                     if(read(auth_path)[name] || name === read(auth_path).Owner) {
                         const memo = message.slice(prefix + command.addmemo).trim().split(/ +/);
 
-                        if(memo[1] === 'help') {
+                        if(memo[1] && memo[2]) {
+                            if(memo[1] === 'help') {
+                                rustplus.sendTeamMessage(bot + command.addmemo + ' [SaveName] ' + '[detail]')
+                            } else {
+                                if(read(memo_path)[memo[1]]) {
+                                    rustplus.sendTeamMessage(bot + memo[1] + language.already_saved);
+                                } else {
+                                    write('./memo.json', memo[1], memo[2]);
+                                    rustplus.sendTeamMessage(bot + language.saved);
+                                }
+                            }
+                        } else {
                             rustplus.sendTeamMessage(bot + command.addmemo + ' [SaveName] ' + '[detail]')
-                        } else if (!memo[1]){
-                            rustplus.sendTeamMessage(bot + language.error);
-                        } else if(!memo[2]) {
-                            rustplus.sendTeamMessage(bot + language.error);
-                        }
-                        else {
-                            write('./memo.json', memo[1], memo[2]);
-                            rustplus.sendTeamMessage(bot + language.saved);
                         }
                     } else {
                         rustplus.sendTeamMessage(bot + language.not_auth);
@@ -477,18 +487,14 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                 }
 
                 if(message.includes(prefix + command.openmemo)) { //メモの内容を
-                    if(!existsSync('./memo.json')) {
-                        rustplus.sendTeamMessage(language.error);
-                    }
                     const memo = message.slice(prefix + command.openmemo).trim().split(/ +/);
-                    const memoJson = require('./memo.json')
 
                     if(memo[1]) {
                         if(memo[1] === 'help') {
                             rustplus.sendTeamMessage(bot + command.openmemo + ' [SaveName]');
                         } else {
-                            if(memoJson[memo[1]]) {
-                                rustplus.sendTeamMessage(bot + memo[1] + " : " + memoJson[memo[1]]);
+                            if(read(memo_path, true)[memo[1]]) {
+                                rustplus.sendTeamMessage(bot + memo[1] + " : " + read(memo_path, true)[memo[1]]);
                             } else {
                                 rustplus.sendTeamMessage(bot + memo[1] + language.not_saved);
                             }
@@ -504,27 +510,31 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
 
                         if(entityID[1] && entityID[2]) {
                             if(entityID[1] === 'help') {
-                                rustplus.sendTeamMessage(bot + command.add + ' entityID ' + 'saveName');
-                                return false;
-                            }
-                            rustplus.getEntityInfo(entityID[1], (info) => {
-                                let i = info.response;
-
-                                if(i.error) { //responseにエラーがあったら
-                                    rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
-                                } else if(i.entityInfo) { //entityInfoが出てきたら
-                                    if(read('./device.json', true)[entityID[2]]) {
-                                        rustplus.sendTeamMessage(bot + entityID[2] + language.already_saved)
-                                    } else {
-                                        write('./device.json', entityID[2], entityID[1])
-                                        rustplus.sendTeamMessage(bot + language.saved)
-                                    }
-                                } else { //その他はエラー
-                                    rustplus.sendTeamMessage(bot + language.error)
+                                rustplus.sendTeamMessage(bot + command.add + ' [entityID] ' + '[saveName]');
+                            } else {
+                                if(read(device_path)[entityID[2]]) {
+                                    rustplus.sendTeamMessage(bot + entityID[2] + language.already_saved);
+                                } else {
+                                    rustplus.getEntityInfo(entityID[1], (info) => {
+                                        let i = info.response;
+        
+                                        if(i.error) { //responseにエラーがあったら
+                                            rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
+                                        } else if(i.entityInfo) { //entityInfoが出てきたら
+                                            if(read('./device.json', true)[entityID[2]]) {
+                                                rustplus.sendTeamMessage(bot + entityID[2] + language.already_saved)
+                                            } else {
+                                                write('./device.json', entityID[2], entityID[1])
+                                                rustplus.sendTeamMessage(bot + language.saved)
+                                            }
+                                        } else { //その他はエラー
+                                            rustplus.sendTeamMessage(bot + language.error)
+                                        }
+                                    })
                                 }
-                            })
+                            }
                         } else {
-                            rustplus.sendTeamMessage(bot + command.add + ' entityID ' + 'saveName');
+                            rustplus.sendTeamMessage(bot + command.add + ' [entityID] ' + '[saveName]');
                         }
                     } else {
                         rustplus.sendTeamMessage(language.not_auth);
@@ -810,3 +820,4 @@ else { // config.jsonがないとrustplusに接続させないようにさせプ
     console.log("\x1b[36m[" + getTime(true) + "][INFO] \x1b[39m : " + language.run_fcmprogram);
     process.exit(0);
 }
+//スキンください🤪
