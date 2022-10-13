@@ -96,6 +96,3 @@ input : ``recycle [アイテム名]``
 ### mainTC  
 ;adddevice MainTCで登録すれば;mainTCと打つだけで維持できる時間が表示されます  
 もし風化していたら風化をお知らせします
-
-## Help
-Discord : Asutora#7267
