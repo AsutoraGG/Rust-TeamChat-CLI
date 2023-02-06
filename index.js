@@ -1,14 +1,13 @@
 const RustPlus = require('@liamcottle/rustplus.js');
 const SteamID = require('steamid');
 const Translate = require('translate-google');
-const { notify } = require('node-notifier');
+//const { notify } = require('node-notifier');
 const dayJS = require('dayjs');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const { listen } = require('push-receiver');
 require('dayjs/locale/ja');
 
 const readLine = require('readline');
-const path = require('path');
 const https = require('https');
 const { existsSync, readFileSync, writeFileSync } = require('fs');
 const { writeFile } = require('fs/promises');
@@ -106,27 +105,53 @@ function deleteObject(filename, object) {
     writeFile(filename, JSON.stringify(Json, null, 2));
 };
 
+function downloadFile(url, savefolder) {
+    https.get(url, (res) => {
+        let body = '';
+        res.setEncoding('utf-8');
+
+        res.on('data', (chunk) => {
+            body += chunk;
+        });
+
+        res.on('end', (res) => {
+            res = body;
+            writeFileSync(savefolder, res, 'utf-8'); // Download Complete
+        })
+    })
+}
+
 console.clear();
 input.pause();
 
 if (existsSync('./config.json')) { // config.jsonはこのプログラムでは生成できないので
     if(!existsSync('./auth.json')) { //ファイルがなかったら作成又は終了
+        console.log('');
+        Print('ERROR', "auth.json is not found!", false);
         writeFile('./auth.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved auth.json', false);
     } else if(!existsSync('./device.json')) {
+        console.log('');
+        Print('ERROR', "device.json is not found!", false);
         writeFile('./device.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved device.json', false);
     } else if(!existsSync('./memo.json')) {
+        console.log('');
+        Print('ERROR', "memo.json is not found!", false);
         writeFile('./memo.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved memo.json', false);
-    } else if(!existsSync('./src/recycle.json') || !existsSync('./src/')) {
-        Print('ERROR', "src folder is don't Remove!")
-        process.exit(0);
-    } else if(!existsSync('./rustplus.config.json')) {
+    } else if(!existsSync('./src/recycle.json')) {
+        console.log('');
+        Print('ERROR', "recycle.json is not found!", false);
+        downloadFile('https://raw.githubusercontent.com/AsutoraGG/Rust-TeamChat-CLI/main/src/recycle.json', './src/recycle.json');
+        Print('INFO', 'Saved recycle.json!', false);
+    } else if(!existsSync('./rustplus.config.json')) { //pairing等を対応させるために必要
         Print('ERROR', 'rustplus.config.json is not Found!', false);
         Print('ERROR', 'Run' + '\x1b[34m npx @liamcottle/rustplus.js fcm-register\x1b[0m');
         process.exit(0);
     } else if(!existsSync('./src/database.json')) {
+        console.log('');
+        Print('ERROR', 'database.json is not found!', false);
         writeFile('./src/database.json', '[]', 'utf-8');
         Print('INFO', 'Saved database.json!', false);
     }
@@ -141,55 +166,59 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         Print('ERROR', language.no_Owner, false);
         Print('ERROR', language.process_exit, false);
         process.exit(0);
-    } else if(!config.fix) { // fixがなかったら更新してください
-        Print('ERROR', 'Pls Update this program!!', false);
-        process.exit(0);
-    } else if(!config.IP || !config.Ingame) { // もしファイルがあっても内容が書かれてなかったら
+    }else if(!config.IP || !config.Ingame) { //もしファイルがあっても内容が書かれてなかったら
         Print('ERROR', language.config_error, false);
         process.exit(0);
     }
 
     if(config.fix === false) { /* ja.jsの一部がゲーム内で使えない漢字だったのでファイルを上書き保存 */
         let URL = "https://gist.githubusercontent.com/AsutoraGG/20dadad0c34b705e6bf56794d488675f/raw/c84ef9494dafbfa0976b38ec1a51179f187a68af/fixJapanese";
-        https.get(URL, (res) => {
-            let body = '';
-            res.setEncoding('utf-8');
-        
-            res.on('data', (chunk) => {
-                body += chunk;
-            });
-        
-            res.on('end', (res) => {
-                res = body;
-                if(existsSync('./node_modules')) {
-                    writeFileSync('./node_modules/dayjs/locale/ja.js', res, 'utf-8');
-                    write('./config.json', 'fix', true)
-                }
-            })
-        })
+        downloadFile(URL, './node_modules/dayjs/locale/ja.js');
+        write('./config.json', 'fix', true)
+        Print('INFO', 'fixed dayjs!', false);
     }
 
     Print('INFO', language.found_config, false); // ファイルが見つかりましたのお知らせ
 
     const rustplus = new RustPlus(config.IP, config.PORT, config.ID, config.TOKEN); // RustPlusに登録する情報
 
-    rustplus.on('connected', () => { /* サーバーに接続されたら */
+    rustplus.on('connected', () => { // サーバーに接続されたら
+        let teamMember = [];
         Print('INFO', language.connected_rustplus, false);
         Print('INFO', language.default_prefix, false);
-        rustplus.sendTeamMessage(bot + 'Connected!');
 
-        // rustplus.getTeamInfo(team => { //チーム人数が1の場合ここを無効にしてください(囲めば無効にできます)
-        //     let member = team.response.teamInfo.members;
-        //     if(member.length === 1) {
-        //         Print('ERROR', language.no_teampop, false);
-        //         rustplus.disconnect();
-        //         process.exit(0);
-        //     }
-        // });
+        function checkCurrentOnlineMember() {
+            let data = "";
+            rustplus.getTeamInfo((info) => {
+                let response = info.response.teamInfo.members;
+                for(let team of response) {
+                    if(team.isOnline === true) {
+                        data += team.name + " "
+                    }
+                }
+                Print('INFO', '現在オンラインのメンバー: "' + data + '"');
+            })
+        };
+
+        function checkTeamUpdate(first) { // Testing now
+            rustplus.getTeamInfo((info) => {
+                let teamInfo = info.response.teamInfo.members;
+                for(let team of teamInfo) {
+                    if(first !== true) {
+                        if(!teamMember[team.name]) { // もし名前がなかったら
+                            Print('INFO', "New Team Meber: " + team.name)
+                        }
+                    }
+                    teamMember.splice(0);
+                    teamMember.push(team.name);
+                }
+            })
+        };
 
         setTimeout(() => {
             console.clear();
             input.resume();
+            checkCurrentOnlineMember();
         }, 3000);
 
         if(config.Ingame.command === true) {
@@ -202,44 +231,46 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
             const i = JSON.stringify(persistentId);
             const id = i.replace(/"/g, '');
             const database_data = read(databas, true);
-    
+
             database_data.push(id);
-    
+
             var newDate = JSON.stringify(database_data);
             writeFileSync(databas, newDate, 'utf-8')
-    
+
             const data = notification.data;
             const body = JSON.parse(data.body);
-    
+
             if (data.channelId === 'pairing') {
                 if (body.type === 'entity') {
                     if (body.entityType === '1') {
-                        Print('PAIRING', '-- SmartSwitch -- EntityID:' + body.entityId);
+                        Print('PAIRING', '[Smart Switch]   EntityID: "' + body.entityId + '"');
                     } else if (body.entityType === '2') {
-                        Print('PAIRING', '-- Smart Alarm -- EntityID:' + body.entityId);
+                        Print('PAIRING', '[Smart Alarm]    EntityID: "' + body.entityId + '"');
                     } else if (body.entityType === '3') {
-                        Print('PAIRING', '-- Storage Monitor -- EntityID: ' + body.entityId);
+                        Print('PAIRING', '[Storage Monitor] EntityID: "' + body.entityId + '"');
                     }
                 } else if (body.type === 'server') {
-                    Print('PAIRING', '-- Server -- PlayerToken: ' + body.playerToken);
+                    Print('PAIRING', '[Server] PlayerToken: "' + body.playerToken + '"');
+                } else {
+                    Print('PAIRING', '[Unknow Response]', false);
+                    print('PAIRING', data)
+                    Print('PAIRING', '-----------------------------', false);
                 }
             } else if (data.channelId === 'alarm') {
                 rustplus.sendTeamMessage('[ALARM] : [' + data.title + '] '+ data.message)
-                notify({
-                    title: '[' + data.title + ']',
-                    message: data.message,
-                    icon: path.join(__dirname, 'rust.svg')
-                })
+            } else {
+                Print('INFO', '-- unknown data --', false);
+                console.log(data)
             }
         }
 
         async function startListning() {
             const credentials = read('./rustplus.config.json').fcm_credentials;
             let persistentIds = read(databas, true);
-    
+
             await listen({ ...credentials, persistentIds }, onNotification);
         }
-    
+
         startListning();
     });
 
@@ -267,7 +298,6 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
 
     rustplus.on('message', msg => { /* チームチャットでメッセージを受信したときの処理(msg = チームチャットの詳細) */
         const command = require('./src/command.json')
-        const device = require('./device.json');
         const device_path = './device.json';
         const recycle = require('./src/recycle.json');
         const memo_path = './memo.json'
@@ -297,7 +327,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                     }
                 }
 
-                if(message === prefix + command.now) { // get Current Time(Real World) command
+                if(message === prefix + command.now) { // get Current Time(Real Life) command
                     if(read(auth_path)[name] || name === read(auth_path).Owner) {
                         rustplus.sendTeamMessage(bot + language.current_time + getTime(false));
                     } else {
@@ -356,7 +386,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                                             rustplus.sendTeamMessage(bot + language.TC_decay)
                                         }
                                     } else {
-                                        rustplus.sendTeamMessage('This is Not Storage Monitor!')
+                                        rustplus.sendTeamMessage(bot + 'This is Not Storage Monitor!')
                                     }
                                 } else {
                                     if(r.response.error.error.toString().includes('not_found')) {
@@ -517,7 +547,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                                 } else {
                                     rustplus.getEntityInfo(entityID[1], (info) => {
                                         let i = info.response;
-        
+
                                         if(i.error) { //responseにエラーがあったら
                                             rustplus.sendTeamMessage(bot + language.invalid_entityid) //エンティティIDを正しく入力してください
                                         } else if(i.entityInfo) { //entityInfoが出てきたら
@@ -656,10 +686,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                             }
 
                             if(existsSync('device.json')) {
-                                const d = readFileSync('./device.json');
-                                const j = JSON.parse(d);
-
-                                if(device[args[1]]) {
+                                if(read(device_path)[args[1]]) {
                                     deleteObject('device.json', args[1]);
                                     rustplus.sendTeamMessage(bot + language.removed);
                                 } else {
@@ -685,6 +712,15 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                         } else {
                             if(args[1] === 'help') {
                                 rustplus.sendTeamMessage(bot + command.addAuth + ' *[PlayerName]');
+                            } else if(args[1] === 'test') {
+                                rustplus.getTeamInfo(team => {
+                                    let info = team.response.teamInfo.members;
+
+                                    for(let i of info) {
+                                        write('./auth.json', i.name, 'ok')
+                                    }
+                                    rustplus.sendTeamMessage(bot + language.saved);
+                                })
                             } else {
                                 write('./auth.json', args[1], 'ok');
                                 rustplus.sendTeamMessage(bot + language.saved);
@@ -703,7 +739,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                             if(args[1] === 'help') {
                                 rustplus.sendTeamMessage(bot + command.removeAuth + ' [PlayerName]' + '(*' + language.need_args + ')');
                             } else if(args[1] === 'Owner') {
-                                rustplus.sendTeamMessage(bot + "Owner is can't delet!!!!!!!!!!");
+                                rustplus.sendTeamMessage(bot + "黙れ");
                             } else {
                                 if(existsSync(auth_path)) {
                                     if(read(auth_path, true)[args[1]]) {
@@ -760,7 +796,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                 if(message.includes(prefix + command.recycle)) { //リサイクラー
                     if(read(auth_path)[name] || name === read(auth_path).Owner) {
                         const args = message.slice(prefix + command.recycle).trim().split(/ +/);
-                        
+
                         if(args[1]) {
                             if(args[1] === 'help') {
                                 rustplus.sendTeamMessage(bot + command.recycle + ' [ItemName(No Space)]');
@@ -787,10 +823,10 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         if(msg === 'getToken') {
             readLine.moveCursor(process.stdout, 0, -1);
             Print('HELP', language.get_token)
-        } else if (msg === 'clear') {
+        }else if (msg === 'clear' || msg === 'cls') {
             readLine.moveCursor(process.stdout, 0, -1);
             console.clear();
-        } else if(msg === 'exit') {
+        } else if(msg === 'exit' || msg === 'quit') {
             readLine.moveCursor(process.stdout, 0, -1);
             input.pause();
             Print('INFO', language.process_exit, false);
@@ -820,4 +856,3 @@ else { // config.jsonがないとrustplusに接続させないようにさせプ
     console.log("\x1b[36m[" + getTime(true) + "][INFO] \x1b[39m : " + language.run_fcmprogram);
     process.exit(0);
 }
-//スキンください🤪
