@@ -1,5 +1,5 @@
 # Rust TeamChat CLI
-[ここから](https://github.com/AsutoraGG/Rust-TeamChat-CLI/releases)ダウンロードしないでSource Codeをダウンロードして実行してください
+[ここから](https://github.com/AsutoraGG/Rust-TeamChat-CLI/releases)ダウンロードしないで[Source Code](https://github.com/AsutoraGG/Rust-TeamChat-CLI/archive/refs/heads/main.zip)をダウンロードして実行してください  
 [rustplus.js](https://github.com/liamcottle/rustplus.js)を使用し作られたCLIです。
 ### -できること-
 - ターミナルでチームチャットにメッセージを送信、取得が可能
