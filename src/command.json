@@ -10,7 +10,7 @@
     "addmemo": "addmemo",
     "removememo": "deletememo",
     "openmemo": "openmemo",
-    "changeLeader": "leader",
+    "changeLeader": "newleader",
     "removedevice": "removedevice",
     "addAuth": "addauth",
     "removeAuth": "removeauth",
@@ -18,7 +18,5 @@
     "translate": "translate",
     "recycle": "recycle",
     "mainTC": "mainTC",
-    "DEV": {
-        "strobe": "strobe"
-    }
+    "disableVC": "disableVC"
 }

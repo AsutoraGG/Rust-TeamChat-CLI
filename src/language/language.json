@@ -11,6 +11,10 @@
     "config_error": "config.jsonは見つかりましたが中身に問題があります",
     "default_prefix": "初期設定ではPrefixは ';'　に設定されています",
     "current_pop": "メンバー数: ",
+    "onlinemember": "現在オンラインのメンバー",
+    "alloffline": "誰もオンラインではありません",
+    "deadmember": "死亡したプレイヤー",
+    "notalldead": "誰も死んでいません",
     "pop": "人",
     "current_time": "げんざいのじこく : ",
     "time": "秒",
@@ -56,5 +60,8 @@
     "pairing_storage": "ストレージモニターがペアリングされました",
     "TC_notfound": "で[MainTC]を登録してください",
     "TC_decay": "メインTCがふうかしています",
-    "TC_WhenDecay": "ごにふうかします"
+    "TC_WhenDecay": "ごにふうかします",
+    "same": "既に",
+    "natteimasu": "になっています",
+    "DIS_Ready": "がオンラインになりました!"
 }
