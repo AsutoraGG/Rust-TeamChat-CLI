@@ -1,4 +1,5 @@
 # Rust TeamChat CLI
+##　現在一部コマンドが自分の環境じゃ使えません。自分の場合 mainTCコマンドが使えなくてスマートアラームが機能しない。
 [ここから](https://github.com/AsutoraGG/Rust-TeamChat-CLI/releases)ダウンロードしないで[Source Code](https://github.com/AsutoraGG/Rust-TeamChat-CLI/archive/refs/heads/main.zip)をダウンロードして実行してください  
 [rustplus.js](https://github.com/liamcottle/rustplus.js)を使用し作られたCLIです。
 ### -できること-
