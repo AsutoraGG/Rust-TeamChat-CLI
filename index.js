@@ -138,12 +138,12 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         writeFile('./device.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved device.json', false);
     } 
-    if(!existsSync('./memo.json')) {
+    /*if(!existsSync('./memo.json')) {
         console.log('');
         Print('ERROR', "memo.json is not found!", false);
         writeFile('./memo.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved memo.json', false);
-    }
+    } */
     if(!existsSync('./src/recycle.json')) {
         console.log('');
         Print('ERROR', "recycle.json is not found!", false);
@@ -167,8 +167,6 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     const auth_path = './auth.json';
     let databas = './src/database.json'; // idを保存するめのデータベース
     let bot = '[BOT] : ';
-
-    let SendMessage = read('./config.json')["Discord.SendMSG"]
 
     if(!auth.Owner) {　//オーナーが登録されてなかったら
         Print('ERROR', language.no_Owner, false);
@@ -355,7 +353,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         const command = require('./src/command.json')
         const device_path = './device.json';
         const recycle = require('./src/recycle.json');
-        const memo_path = './memo.json';
+        //const memo_path = './memo.json';
 
         if (msg.broadcast && msg.broadcast.teamMessage) {
             let message = msg.broadcast.teamMessage.message.message.toString(); // メッセージの内容
@@ -561,6 +559,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                     }
                 }
 
+                /*
                 if(message_Low.includes(prefix + command.addmemo)) { //メモに文字列を登録
                     if(read(auth_path)[name] || name === read(auth_path).Owner) {
                         const memo = message.slice(prefix + command.addmemo).trim().split(/ +/);
@@ -615,7 +614,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                     } else {
                         rustplus.sendTeamMessage(bot + language.no_name);
                     }
-                }
+                } */
 
                 if(message_Low.includes(prefix + command.add)) { // adddevice command
                     if(name === read(auth_path).Owner) {
@@ -961,14 +960,9 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
             unlinkSync('./src/database.json');
             Print('INFO', 'Temp is Deleted!')
             writeFile('./src/database.json', '[]', 'utf-8');
-            unlinkSync('./memo.json');
-            Print('INFO', 'Memo is Deleted!')
-            writeFile('./memo.json', "{\n\n}", 'utf-8');
-        } else if(msg === "startRust") {
-            readLine.moveCursor(process.stdout, 0, -1);
-            startExe(config.rustPath, function(err, stdout, stderr) {
-                if(err) return Print('error', err)
-            })
+            //unlinkSync('./memo.json');
+            //Print('INFO', 'Memo is Deleted!')
+            //writeFile('./memo.json', "{\n\n}", 'utf-8');
         } else {
             readLine.moveCursor(process.stdout, 0, -1); //入力を受け取った後上の一行を削除する
             rustplus.sendTeamMessage(msg); //　チームチャットにメッセージを送信
