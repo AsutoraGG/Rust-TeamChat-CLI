@@ -19,7 +19,7 @@ https://user-images.githubusercontent.com/76235964/192494087-3aadb192-ff28-466a-
 4. Run The ``node index.js`` 
 
 ## Commands
-Command List is Here  
+Command List is [Here](https://github.com/AsutoraGG/Rust-TeamChat-CLI/blob/main/src/github/command.md)
 
 
 This Program used [Rustplus.js](https://github.com/liamcottle/rustplus.js)
