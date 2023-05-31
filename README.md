@@ -14,9 +14,9 @@ https://user-images.githubusercontent.com/76235964/192494087-3aadb192-ff28-466a-
 
 ## Install
 1. Download from [Release](https://github.com/AsutoraGG/Rust-TeamChat-CLI/releases/tag/Latest)
-2. Run The ``install modules.bat``
-3. Open Rust and Connect Server then Open ``Get PlayerToken.bat`` and Pairing Server
-4. Open ``Run Main.bat``
+2. Run The ```npm install```
+3. Open Rust and Connect Server then Run The ```node GetToken.js``` and Pairing Server
+4. Run The ``node index.js`` 
 
 ## Commands
 Command List is Here  
