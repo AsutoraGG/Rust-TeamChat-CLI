@@ -5,7 +5,7 @@
 ## Features
 - Send & Read Message with Terminal(Command Prompt)
 - Enable In Game Commands
-- Listen Smart Alarm Message
+- ~~Listen Smart Alarm Message~~
 - And More!  
 
 https://user-images.githubusercontent.com/76235964/192494087-3aadb192-ff28-466a-bb4f-2ca0232ca2ab.mp4   
