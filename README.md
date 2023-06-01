@@ -21,5 +21,9 @@ https://user-images.githubusercontent.com/76235964/192494087-3aadb192-ff28-466a-
 ## Commands
 Command List is [Here](https://github.com/AsutoraGG/Rust-TeamChat-CLI/blob/main/src/github/command.md)
 
+## Status
+**Storage Monitor**: 🟢  
+**Smart Alarm**:     🔴  (idk its not working...)
+**Smart Switch**:    🟢  
 
 This Program used [Rustplus.js](https://github.com/liamcottle/rustplus.js)
