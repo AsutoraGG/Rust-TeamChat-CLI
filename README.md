@@ -13,6 +13,7 @@ https://user-images.githubusercontent.com/76235964/192494087-3aadb192-ff28-466a-
 (but Smart Alarm is Currently Not Working IDK😐)
 
 ## Install
+### Required Node.js!
 1. Download from [Release](https://github.com/AsutoraGG/Rust-TeamChat-CLI/releases/tag/Latest)
 2. Run The ```npm install```
 3. Open Rust and Connect Server then Run The ```node GetToken.js``` and Pairing Server
