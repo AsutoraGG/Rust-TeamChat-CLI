@@ -23,7 +23,7 @@ Command List is [Here](https://github.com/AsutoraGG/Rust-TeamChat-CLI/blob/main/
 
 ## Status
 **Storage Monitor**: 🟢  
-**Smart Alarm**:     🔴  (idk its not working...)
+**Smart Alarm**:     🔴  (idk its not working...)  
 **Smart Switch**:    🟢  
 
 This Program used [Rustplus.js](https://github.com/liamcottle/rustplus.js)
