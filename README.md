@@ -10,7 +10,7 @@
 
 https://user-images.githubusercontent.com/76235964/192494087-3aadb192-ff28-466a-bb4f-2ca0232ca2ab.mp4   
 
-(but Smart Alarm, Sotrage Monitor is Currently Not Working IDK😐)
+(but Smart Alarm is Currently Not Working IDK😐)
 
 ## Install
 1. Download from [Release](https://github.com/AsutoraGG/Rust-TeamChat-CLI/releases/tag/Latest)
