@@ -63,6 +63,6 @@ input : ``recycle [アイテム名]``
 注:アイテム名は英語+空白はなし(大文字小文字は関係ないです)。対応されてないアイテムもまだあるので気分で追加していきます  
 
 ## mainTC  
-**ITS NOT WORKING NOW**
+~~**ITS NOT WORKING NOW**~~
 ;adddevice MainTCで登録すれば;mainTCと打つだけで維持できる時間が表示されます  
 もし風化していたら風化をお知らせします
