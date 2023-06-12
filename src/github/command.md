@@ -5,10 +5,6 @@ Defalut Prefix =  `;`
 Return Server pop  
 output : ``pop/maxPop(queue)`` 
 
-## teampop
-Return Team Pop  
-output : ``teampop``
-
 ## time 
 Return In Game Time  
 output : ``Hour : Min``
@@ -17,9 +13,12 @@ output : ``Hour : Min``
 Returm Not In Game Time  
 output : ``Hour : Min``
 
-## steamid
-return Your SteamID  
-output : ``PlayerName : SteamID``
+## sendcommand
+send teamInfo, serverInfo to Discord  
+input : ``sendcommand [teaminfo || serverinfo] ``  
+![image](https://github.com/AsutoraGG/Rust-TeamChat-CLI/assets/76235964/8dc54686-d491-4c93-86b0-1da6385dc0f3)
+![image](https://github.com/AsutoraGG/Rust-TeamChat-CLI/assets/76235964/9f94d32d-11bf-4043-bd39-614d8750afc9)
+
 
 ## addauth :crown:
 Add auth. this is This allows the player to use commands  
@@ -50,17 +49,12 @@ Change Leader. if your leader
 input : ``leader [NewLeaderSteamID]``
 
 ## teamInfo
-Return TeamInfo. Dead? Alive? Online? Offline?
-input : ``teamInfo [dead, alive, online, offline]``  
+Return TeamInfo. Dead? Alive? Online? Offline?　Pop?
+input : ``teamInfo [dead, alive, online, offline, pop]``  
 
 ## translate
 Trnaslate  input String
 input : ``translate *[翻訳する文字列] *[言語]``  
-
-## recycle
-アイテム名を入力したら分解後のデータが送信されます  
-input : ``recycle [アイテム名]``   
-注:アイテム名は英語+空白はなし(大文字小文字は関係ないです)。対応されてないアイテムもまだあるので気分で追加していきます  
 
 ## mainTC  
 ~~**ITS NOT WORKING NOW**~~
