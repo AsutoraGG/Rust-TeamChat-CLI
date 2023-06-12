@@ -128,7 +128,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     if(!existsSync('./auth.json')) { //ファイルがなかったら作成又は終了
         console.log('');
         Print('ERROR', "auth.json is not found!", false);
-        writeFile('./auth.json', "{\n\n}", 'utf-8');
+        downloadFile("https://raw.githubusercontent.com/AsutoraGG/Rust-TeamChat-CLI/main/auth.json", './auth.json')
         Print('INFO', 'Saved auth.json', false);
     } 
     if(!existsSync('./device.json')) {
@@ -136,13 +136,13 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         Print('ERROR', "device.json is not found!", false);
         writeFile('./device.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved device.json', false);
-    } 
+    } /*
     if(!existsSync('./src/recycle.json')) {
         console.log('');
         Print('ERROR', "recycle.json is not found!", false);
         downloadFile('https://raw.githubusercontent.com/AsutoraGG/Rust-TeamChat-CLI/main/src/recycle.json', './src/recycle.json');
         Print('INFO', 'Saved recycle.json!', false);
-    } 
+    } */
     if(!existsSync('./rustplus.config.json')) { //pairing等を対応させるために必要
         Print('ERROR', 'rustplus.config.json is not Found!', false);
         Print('ERROR', 'Run' + '\x1b[34m npx @liamcottle/rustplus.js fcm-register\x1b[0m');
@@ -191,8 +191,11 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         Print('INFO', client.user.tag + language.DIS_Ready, false);
     });
 
+    client.on('error', (e) => {
+        Print('error', e, false)
+    })
+
     rustplus.on('connected', () => { // サーバーに接続されたら
-        let teamMember = [];
         Print('INFO', language.connected_rustplus, false);
         Print('INFO', language.default_prefix, false);
 
@@ -262,51 +265,22 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
             const data = notification.data;
             const body = JSON.parse(data.body);
 
-            switch(data.channelId) {
-                case "pairing": {
-                    
-                    switch(body.type) {
-                        case "entity": {
-                            switch(body.entityType) {
-                                case "1": {
-                                    Print('PAIRING', '[Smart Switch]   EntityID: "' + body.entityId + '"');
-                                }
-                                
-                                case "2": {
-                                    Print('PAIRING', '[Smart Alarm]');
-                                }
-
-                                case "3": {
-                                    Print('PAIRING', '[Storage Monitor] EntityID: "' + body.entityId + '"');
-                                }
-
-                                default: {
-                                    Print('PAIRING', "[Unknown Pairing]", false);
-                                    console.log(body);
-                                }
-                            }
-                        }
-
-                        case "server": {
-                            Print('PAIRING', '[Server] PlayerToken: "' + body.playerToken + '"');
-                        }
-
-                        default : {
-                            Print('PAIRING', '[Unknow Response]', false);
-                            print('PAIRING', data)
-                            Print('PAIRING', '-----------------------------', false);
-                        }
+            if (data.channelId === 'pairing') {
+                if (body.type === 'entity') {
+                    if (body.entityType === '1') {
+                        Print('PAIRING', '[SmartSwitch] EntityID: ' + body.entityId);
+                    } else if (body.entityType === '2') {
+                        Print('PAIRING', '[Smart Alarm] EntityID: ' + body.entityId);
+                    } else if (body.entityType === '3') {
+                        Print('PAIRING', '[Storage Monitor] EntityID: ' + body.entityId);
                     }
+                } else if (body.type === 'server') {
+                    Print('PAIRING', '[Server] PlayerToken: ' + body.playerToken);
                 }
-
-                case "alarm": { // maybe i'ts not working!!
-                    rustplus.sendTeamMessage('[' + data.title + '] '+ data.message)
-                }
-
-                default: {
-                    Print('INFO', '-- unknown data --', false);
-                    console.log(data)
-                }
+            } else if (data.channelId === 'alarm') {
+                rustplus.sendTeamMessage('[ALARM] : [' + data.title + '] '+ data.message)
+            } else {
+                Print('ERROR', body)
             }
         }
 
@@ -345,7 +319,9 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     rustplus.on('message', msg => { /* チームチャットでメッセージを受信したときの処理(msg = チームチャットの詳細) */
         const command = require('./src/command.json')
         const device_path = './device.json';
-        const recycle = require('./src/recycle.json');
+        //const recycle = require('./src/recycle.json');
+
+        const steamBaseURL = "https://steamcommunity.com/profiles/"
 
         const channel = client.channels.cache.get(config.Discord.ChannelID); // チャンネルIDを入力してください
 
@@ -440,7 +416,6 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
 
                                 if(!r.response.error) {
                                     if(Info.type === 3) { //ストレージモニターか
-                                        console.log(Info)
                                         if(Info.payload.protectionExpiry > 0) { // 0 = 風化
                                             let i = Info.payload.protectionExpiry
                                             rustplus.sendTeamMessage(bot + dayJS(new Date()).to(i * 1000, true) + language.TC_WhenDecay);
@@ -810,6 +785,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                     }
                 }
 
+                /*
                 if(message_Low.includes(prefix + command.recycle)) { //リサイクラー
                     if(read(auth_path)[name] || name === read(auth_path).Owner) {
                         const args = message.slice(prefix + command.recycle).trim().split(/ +/);
@@ -831,7 +807,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                     } else {
                         rustplus.sendTeamMessage(bot + language.not_auth);
                     }
-                }
+                } */
 
                 if(message_Low.includes(prefix + command.sendMessage)) { //Discordにメッセージを送信するか
                     if(name === read(auth_path).Owner) {
@@ -870,7 +846,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
 
                     if(read(auth_path)[name] || name === read(auth_path).Owner)  {
                         if(!args[1]) {
-                            rustplus.sendTeamMessage(bot + command.command + ' *[CommandName] (serverinfo || teaminfo)');
+                            rustplus.sendTeamMessage(bot + command.command + ' *[CommandName] (serverinfo (+α channelID) || teaminfo)');
                         } else {
                             if(args[1] === "serverinfo") {
                                 rustplus.getInfo((serverInfo) => {
@@ -883,30 +859,69 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                                             name: "Server Name", value: `**${info.name}**`
                                         },
                                         {
-                                            name: "Last Wipe", value: "**" + dayJS(new Date()).from(info.wipeTime * 1000, true) + "前**" + `(<t:${info.wipeTime}:f>)`
+                                            name: "Last Wipe", value: "**" + dayJS(new Date()).from(info.wipeTime * 1000, false) + "**" + `(<t:${info.wipeTime}:f>)`
                                         },
                                         {
                                             name: "Player Count", value: `**${info.players}**/**${info.maxPlayers}**(**${info.queuedPlayers}**)`, inline: true
+                                        },
+                                        {
+                                            name: "Map Info", value: "**Seed**: **" + info.seed +"**\n **Size**: **" + info.mapSize + "**"
                                         }
                                     ])
                                     
-                                    channel.send({ embeds: [embed] });
+                                    if(args[2]) {
+                                        client.channels.cache.get(args[2]).send({ embeds: [embed] })
+                                    } else {
+                                        channel.send({ embeds: [embed] });
+                                    }
                                 })
+
                                 rustplus.sendTeamMessage(bot + "sent!")
                             } else if(args[1] === "teaminfo") {
-                                rustplus.sendTeamMessage(bot + "せいさくちゅう...")
-                                /*
-                                let teamInfoEmbed = new MessageEmbed().setTitle("Team Info");
-                                let playerName = [];
-                                let isOnline = [];
-                                let isAlive = [];
+                                rustplus.getTeamInfo(Info => {
+                                    let nameStrings = "\n";
+                                    let aliveStrings = "\n";
+                                    let onlineStrings = "\n";
+                                    let onlineCount = "0";
+                                    let leaderSteamID = "";
 
-                                rustplus.getTeamInfo((teamInfo) => {
-                                    for(let i of teamInfo.response.teamInfo.members) {
-                                        playerName.push(i.name)
+                                    leaderSteamID += Info.response.teamInfo.leaderSteamId.toString()
+
+                                    const embed = new MessageEmbed()
+                                    .setColor("RANDOM")
+                                    .setTitle("Team Info")
+                                    .setDescription(":green_circle: = **Online** :black_circle: = **Offline** :blue_circle: = **Alive** :red_circle: = **Dead**")
+
+                                    for(let members of Info.response.teamInfo.members) {
+                                        nameStrings   += "[" + members.name + "](" + steamBaseURL + members.steamId + ")" + (members.steamId === leaderSteamID ? ":crown:" : "\t") + "\n";
+                                        aliveStrings  += (members.isAlive ? ":blue_circle: ": ":red_circle:") + "\n";
+                                        onlineStrings += (members.isOnline ? ":green_circle:" + onlineCount++ : ":black_circle:") + "\n";
                                     }
-                                }) */
-                            }
+
+                                    embed.addFields([
+                                        {
+                                            name: "Player Name", value: nameStrings, inline: true
+                                        },
+                                        {
+                                            name: "is Alive?", value: aliveStrings, inline: true
+                                        },
+                                        {
+                                            name: "is Online?", value: onlineStrings, inline: true
+                                        },
+                                        {
+                                            name: "Total", value: `Total Online Member: **${onlineCount}${language.Players}** and Total Offline Count: **${Info.response.teamInfo.members.length - onlineCount}${language.Players}**`
+                                        }
+                                    ])
+
+                                    if(args[2]) {
+                                        client.channels.cache.get(args[2]).send({ embeds: [embed] })
+                                    } else {
+                                        channel.send({ embeds: [embed] });
+                                    }
+    
+                                    rustplus.sendTeamMessage(bot + "sent!");
+                                })
+                            };
                         }
                     } else {
                         rustplus.sendTeamMessage(bot + language.not_auth);

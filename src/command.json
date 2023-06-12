@@ -14,9 +14,12 @@
     "removedevice": "removedevice",
     "addAuth": "addauth",
     "removeAuth": "removeauth",
-    "team": "teamInfo",
+    "team": "teaminfo",
     "translate": "translate",
     "recycle": "recycle",
-    "mainTC": "mainTC",
-    "disableVC": "disableVC"
+    "mainTC": "maintc",
+    "sendMessage": "sendmessage",
+    "command": "sendcommand",
+    "removeAlarm": "removealarm",
+    "addAlarm": "addalarm"
 }

@@ -63,5 +63,7 @@
     "TC_WhenDecay": "ごにふうかします",
     "same": "既に",
     "natteimasu": "になっています",
-    "DIS_Ready": "がオンラインになりました!"
+    "DIS_Ready": "がオンラインになりました!",
+    "ConnectedName": "に接続されています!",
+    "Players": "名"
 }
