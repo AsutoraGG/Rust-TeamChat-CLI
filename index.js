@@ -16,6 +16,8 @@ const input = readLine.createInterface({ input: process.stdin });
 
 const language = require('./src/language/language.json');
 
+let EnableInput = true
+
 dayJS.locale("ja");
 var thresholds = [
     { l: 's', r: 1 },
@@ -123,6 +125,7 @@ function downloadFile(url, savefolder) {
 
 console.clear();
 input.pause();
+EnableInput = false
 
 if (existsSync('./config.json')) { // config.jsonはこのプログラムでは生成できないので
     if(!existsSync('./auth.json')) { //ファイルがなかったら作成又は終了
@@ -130,19 +133,13 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
         Print('ERROR', "auth.json is not found!", false);
         downloadFile("https://raw.githubusercontent.com/AsutoraGG/Rust-TeamChat-CLI/main/auth.json", './auth.json')
         Print('INFO', 'Saved auth.json', false);
-    } 
+    }
     if(!existsSync('./device.json')) {
         console.log('');
         Print('ERROR', "device.json is not found!", false);
         writeFile('./device.json', "{\n\n}", 'utf-8');
         Print('INFO', 'Saved device.json', false);
-    } /*
-    if(!existsSync('./src/recycle.json')) {
-        console.log('');
-        Print('ERROR', "recycle.json is not found!", false);
-        downloadFile('https://raw.githubusercontent.com/AsutoraGG/Rust-TeamChat-CLI/main/src/recycle.json', './src/recycle.json');
-        Print('INFO', 'Saved recycle.json!', false);
-    } */
+    }
     if(!existsSync('./rustplus.config.json')) { //pairing等を対応させるために必要
         Print('ERROR', 'rustplus.config.json is not Found!', false);
         Print('ERROR', 'Run' + '\x1b[34m npx @liamcottle/rustplus.js fcm-register\x1b[0m');
@@ -201,11 +198,14 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
 
         function checkCurrentOnlineMember() {
             let data = "";
+            let OfflineCount = 0
             rustplus.getTeamInfo((info) => {
                 let response = info.response.teamInfo.members;
                 for(let team of response) {
                     if(team.isOnline === true) {
                         data += team.name + ","
+                    } else {
+                        OfflineCount += 1;
                     }
                 }
                 if(data) {
@@ -213,7 +213,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                 }
                 
 				if(data.length >= 1) {
-                    Print('INFO', language.onlinemember + ': " ' + data + ' "');
+                    Print('INFO', language.onlinemember + ': " ' + data + ' "' + " and " + OfflineCount + " Pepole is Offline");
 				} else {
 					Print('INFO', language.alloffline);
 				}
@@ -240,14 +240,14 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
 					Print('INFO', language.notalldead);
 				}
             })
-
         }
 
         setTimeout(() => {
             console.clear();
-            input.resume();
             checkCurrentOnlineMember();
             checkDeadMember();
+            input.resume();
+            EnableInput = true
         }, 3000);
 
         setTitle("Rust-TeamChat-CLI")
@@ -848,20 +848,20 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                                     let nameStrings = "\n";
                                     let aliveStrings = "\n";
                                     let onlineStrings = "\n";
-                                    let onlineCount = "0";
-                                    let leaderSteamID = "";
-
-                                    leaderSteamID += Info.response.teamInfo.leaderSteamId.toString()
+                                    let onlineCount = 0
+                                    const leaderSteamID = Info.response.teamInfo.leaderSteamId.toString();
 
                                     const embed = new MessageEmbed()
                                     .setColor("RANDOM")
                                     .setTitle("Team Info")
                                     .setDescription(":green_circle: = **Online** :black_circle: = **Offline** :blue_circle: = **Alive** :red_circle: = **Dead**")
 
+                                    console.log(leaderSteamID)
+
                                     for(let members of Info.response.teamInfo.members) {
-                                        nameStrings   += "[" + members.name + "](" + steamBaseURL + members.steamId + ")" + (members.steamId === leaderSteamID ? ":crown:" : "\t") + "\n";
+                                        nameStrings   += "[" + members.name + "](" + steamBaseURL + members.steamId + ")" + (members.steamId === leaderSteamID ? ":crown:" : "") + "\n";
                                         aliveStrings  += (members.isAlive ? ":blue_circle: ": ":red_circle:") + "\n";
-                                        onlineStrings += (members.isOnline ? ":green_circle:" + onlineCount++ : ":black_circle:") + "\n";
+                                        onlineStrings += (members.isOnline ? (() => { onlineCount++; return ":green_circle:"}) : ":black_circle:") + "\n";
                                     }
 
                                     embed.addFields([
@@ -893,40 +893,46 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
                         rustplus.sendTeamMessage(bot + language.not_auth);
                     }
                 }
+
+                if(message_Low === prefix + command.commandList) {
+                    if(read(auth_path)[name] || name === read(auth_path).Owner) {
+                        const CommandLists = Object.values(read("./src/command.json")).join(', ')
+                        console.log(CommandLists)
+                        rustplus.sendTeamMessage(bot + "pop, now, teampop, adddevice, on, off, rusttime, newleader, removedevice, addauth, removeauth, teaminfo, translate, maintc, enablesendcommand, sendcommand, removealarm, addalarm, commandlist")
+                    } else {
+                        rustplus.sendTeamMessage(bot + language.not_auth);
+                    }
+                }
             }
         }
     });
 
     input.on('line', (msg) => {
-        if(msg === 'getToken') {
-            readLine.moveCursor(process.stdout, 0, -1);
-            Print('HELP', language.get_token)
-        }else if (msg === 'clear' || msg === 'cls') {
-            readLine.moveCursor(process.stdout, 0, -1);
-            console.clear();
-        } else if(msg === 'exit' || msg === 'quit') {
-            readLine.moveCursor(process.stdout, 0, -1);
-            input.pause();
-            Print('INFO', language.process_exit, false);
-            rustplus.disconnect();
-            setTimeout(() => process.exit(), 2000);
-        } else if(msg === 'commandList') {
-            const command = require('./src/command.json')
-
-            let l = ''
-            for(let i of Object.keys(command)) {
-                l += ', ' + i
+        if(EnableInput) {
+            if(msg === 'getToken') {
+                readLine.moveCursor(process.stdout, 0, -1);
+                Print('HELP', language.get_token)
+            }else if (msg === 'clear' || msg === 'cls') {
+                readLine.moveCursor(process.stdout, 0, -1);
+                console.clear();
+            } else if(msg === 'exit' || msg === 'quit') {
+                readLine.moveCursor(process.stdout, 0, -1);
+                input.pause();
+                Print('INFO', language.process_exit, false);
+                rustplus.disconnect();
+                setTimeout(() => process.exit(), 2000);
+            } else if(msg === 'commandList') {
+                const CommandLists = Object.values(read("./src/command.json")).join(', ')
+                Print('INFO', CommandLists, false);
+            } else if(msg === "wipe") {
+                readLine.moveCursor(process.stdout, 0, -1);
+                unlinkSync('./src/database.json');
+                Print('INFO', 'Temp was Deleted!')
+                writeFile('./src/database.json', '[]', 'utf-8');
+            } else {
+                readLine.moveCursor(process.stdout, 0, -1); //入力を受け取った後上の一行を削除する
+                rustplus.sendTeamMessage(msg); //　チームチャットにメッセージを送信
             }
-            let list = l.replace(',', '').replace(' ', '').replace(', DEV', '');
-            Print('INFO', list, false);
-        } else if(msg === "cleartemp") {
-            readLine.moveCursor(process.stdout, 0, -1);
-            unlinkSync('./src/database.json');
-            Print('INFO', 'Temp is Deleted!')
-            writeFile('./src/database.json', '[]', 'utf-8');
-        } else {
-            readLine.moveCursor(process.stdout, 0, -1); //入力を受け取った後上の一行を削除する
-            rustplus.sendTeamMessage(msg); //　チームチャットにメッセージを送信
         }
     });
 
