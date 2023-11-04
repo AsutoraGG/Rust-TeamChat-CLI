@@ -7,7 +7,6 @@ const { listen } = require('push-receiver');
 require('dayjs/locale/ja');
 const { Client, MessageEmbed } = require('discord.js')
 
-const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES"] });
 const readLine = require('readline');
 const https = require('https');
 const { existsSync, readFileSync, writeFileSync, unlinkSync } = require('fs');
@@ -165,10 +164,10 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     }else if(!config.IP) { //もしファイルがあっても内容が書かれてなかったら
         Print('ERROR', language.config_error, false);
         process.exit(0);
-    } else if(!config.Discord.ChannelID) {
+    } else if(!config.Discord.ChannelID && config['Discord.SendMSG'] === true) {
         Print('ERROR', language.config_error + '(Please put Server Channel ID)', false);
         process.exit(0)
-    } else if(!config.Discord.Token) {
+    } else if(!config.Discord.Token && config['Discord.SendMSG'] === true) {
         Print('ERROR', language.config_error + '(Please put Discord Bot Token)', false);
         process.exit(0);
     }
@@ -183,69 +182,66 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     Print('INFO', language.found_config, false); // ファイルが見つかりましたのお知らせ
 
     const rustplus = new RustPlus(config.IP, config.PORT, config.ID, config.TOKEN); // RustPlusに登録する情報
-    
-    client.on('ready', () => {
-        Print('INFO', client.user.tag + language.DIS_Ready, false);
-    });
 
-    client.on('error', (e) => {
-        Print('error', e, false)
-    })
+    if(config['Discord.SendMSG']) {
+        const client = new Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_VOICE_STATES"] });
+
+        client.on('ready', () => {
+            Print('INFO', client.user.tag + language.DIS_Ready, false);
+        });
+    
+        client.on('error', (e) => {
+            Print('error', e, false)
+        })
+
+        client.login(config.Discord.Token)
+    }
 
     rustplus.on('connected', () => { // サーバーに接続されたら
         Print('INFO', language.connected_rustplus, false);
         Print('INFO', language.default_prefix, false);
 
-        function checkCurrentOnlineMember() {
+        let MemberLists = []
+
+        var teamInfo;
+        function checkFirstTeamInfo() {
             let data = "";
+            let deaddata = "";
             let OfflineCount = 0
             rustplus.getTeamInfo((info) => {
-                let response = info.response.teamInfo.members;
-                for(let team of response) {
+                teamInfo = info.response.teamInfo.members;
+                for(let team of teamInfo) {
                     if(team.isOnline === true) {
                         data += team.name + ","
                     } else {
                         OfflineCount += 1;
                     }
+
+                    if(team.isAlive === false) {
+                        deaddata += team.name + ','
+                    }
                 }
-                if(data) {
-                    data = data.slice(0, -1);
-                }
+
+                data = data.slice(0, -1);
+                deaddata = deaddata.slice(0, -1)
                 
 				if(data.length >= 1) {
                     Print('INFO', language.onlinemember + ': " ' + data + ' "' + " and " + OfflineCount + " Pepole is Offline");
 				} else {
 					Print('INFO', language.alloffline);
 				}
+
+                if(deaddata.length >= 1) {
+                    Print('INFO', language.deadmember + ': " ' + deaddata + ' "');
+                } else {
+                    Print('INFO', language.notalldead);
+                }
             })
         };
 
-        function checkDeadMember() {
-            let data = '';
-            rustplus.getTeamInfo((info) => {
-                let response = info.response.teamInfo.members;
-                for(let team of response) {
-                    if(team.isAlive === false) {
-                        data += team.name + ','
-                    }
-                }
-
-                if(data) {
-                    data = data.slice(0, -1);
-                }
-
-                if(data.length >= 1) {
-                    Print('INFO', language.deadmember + ': " ' + data + ' "');
-				} else {
-					Print('INFO', language.notalldead);
-				}
-            })
-        }
-
         setTimeout(() => {
             console.clear();
-            checkCurrentOnlineMember();
-            checkDeadMember();
+            checkFirstTeamInfo();
             input.resume();
             EnableInput = true
         }, 3000);
@@ -291,6 +287,7 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
             await listen({ ...credentials, persistentIds }, onNotification);
         }
 
+
         startListning();
     });
 
@@ -323,8 +320,6 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
 
         const steamBaseURL = "https://steamcommunity.com/profiles/"
 
-        const channel = client.channels.cache.get(config.Discord.ChannelID); // チャンネルIDを入力してください
-
         if (msg.broadcast && msg.broadcast.teamMessage) {
             let message = msg.broadcast.teamMessage.message.message.toString(); // メッセージの内容
             let message_Low = message.toLowerCase();
@@ -334,7 +329,9 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
             console.log("[" + getTime(true) + "][CHAT] : " + "[" + name + "] : " + message); // This is team Chat log
 
             // メッセージ送信
-            if(!message.includes(config.Ingame.prefix)) { // Prefix(;)が入っている場合はうるさいので拒否
+            if(!message.includes(config.Ingame.prefix) && config['Discord.SendMSG']) { // Prefix(;)が入っている場合はうるさいので拒否
+                const channel = client.channels.cache.get(config.Discord.ChannelID); // チャンネルIDを入力してください
+
                 if(!message.includes('[BOT]')) { // BOTが言ってることもうるさいので拒否
                     if(read('./config.json')["Discord.SendMSG"] === true) { //デフォルトではTrue
                         if(!channel) {
@@ -937,7 +934,6 @@ if (existsSync('./config.json')) { // config.jsonはこのプログラムでは�
     });
 
     rustplus.connect(); // サーバーに接続
-    client.login(config.Discord.Token); // Discord Login 
 }
 else { // config.jsonがないとrustplusに接続させないようにさせプログラムを終了する
     console.clear();
